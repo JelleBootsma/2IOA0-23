@@ -1,0 +1,1 @@
+web: gunicorn sampledata_vis.wsgi
