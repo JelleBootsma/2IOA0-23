@@ -15,19 +15,22 @@ def homepage(request):
     G = nx.karate_club_graph()
 
     plot = Plot(plot_width=400, plot_height=400, x_range=Range1d(-1.1,1.1), y_range= Range1d(-1.1,1.1))
-    plot.title.text = "Graph Interaction Demonstration"
+    plot.background_fill_color = "#050976"
+    plot.background_fill_alpha = 0
+    plot.border_fill_color = "#050976"
+    plot.border_fill_alpha = 0
 
     plot.add_tools(HoverTool(tooltips=None), TapTool(), BoxSelectTool())
 
     graph_renderer = from_networkx(G, nx.circular_layout, scale=1, center=(0,0))
 
-    graph_renderer.node_renderer.glyph = Circle(size=15, fill_color=Spectral4[0])
-    graph_renderer.node_renderer.selection_glyph = Circle(size=15, fill_color=Spectral4[2])
-    graph_renderer.node_renderer.hover_glyph = Circle(size=15, fill_color=Spectral4[1])
+    graph_renderer.node_renderer.glyph = Circle(size=15, fill_color="#FCFCFC")
+    graph_renderer.node_renderer.selection_glyph = Circle(size=15, fill_color="#FCFCFC")
+    graph_renderer.node_renderer.hover_glyph = Circle(size=15, fill_color="#22A784")
 
-    graph_renderer.edge_renderer.glyph = MultiLine(line_color="#CCCCCC", line_alpha=0.8, line_width=5)
-    graph_renderer.edge_renderer.selection_glyph = MultiLine(line_color=Spectral4[2], line_width=5)
-    graph_renderer.edge_renderer.hover_glyph = MultiLine(line_color=Spectral4[1], line_width=5)
+    graph_renderer.edge_renderer.glyph = MultiLine(line_color= "#FCFCFC", line_alpha=0.8, line_width=5)
+    graph_renderer.edge_renderer.selection_glyph = MultiLine(line_color="#FCFCFC", line_width=5)
+    graph_renderer.edge_renderer.hover_glyph = MultiLine(line_color= "#050976", line_width=5)
 
     graph_renderer.selection_policy = NodesAndLinkedEdges()
     graph_renderer.inspection_policy = EdgesAndLinkedNodes()

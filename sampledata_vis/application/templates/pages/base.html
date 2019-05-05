@@ -1,10 +1,27 @@
+{%  load static %}
 <!DOCTYPE html>
 <html lang="en">
     <head>
+        <meta charset = "UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="ÏE-Edge">
+        <meta content="width-device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+
+        <!-- Fonts --->
+        <link href = "https://fonts.googleapis.com/css?family=Open+Sans|Oswald" rel = "stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&subset=latin,cyrillic-ext" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" type="text/css">
+
+        <!-- Bootstrap core Css -->
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.0/css/bootstrap.min.css" integrity="sha384-PDle/QlgIONtM1aqA2Qemk5gPOE7wFq8+Em+G/hmo5Iq0CCmYZLv3fVRDJ4MMwEA" crossorigin="anonymous">
+
+        <!-- Main css -->
+        <link rel = "stylesheet" type = "text/css" href = "{% static 'css/main.css' %}">
+
+        <!--Javascript -->
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.0/js/bootstrap.min.js" integrity="sha384–7aThvCh9TypR7fIc2HV4O/nFMVCBwyIUKL8XCtKE+8xgCgl/PQGuFsvShjr74PBp" crossorigin="anonymous"></script>
+
 
         <link href="http://cdn.pydata.org/bokeh/release/bokeh-1.1.0.min.css" rel=”stylesheet” type=”text/css”>
         <link href="http://cdn.pydata.org/bokeh/release/bokeh-widgets-1.1.0.min.css" rel=”stylesheet” type=”text/css”>
@@ -12,26 +29,26 @@
         <script src="http://cdn.pydata.org/bokeh/release/bokeh-1.1.0.min.js"></script>
         <script src="http://cdn.pydata.org/bokeh/release/bokeh-widgets-1.1.0.min.js"></script>
         {{ script | safe }}
-        <title>Hello Medium!</title>
+        <title>2IOA0 DBL HTI & web technology</title>
+
     </head>
     <body>
-
-        <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+        <nav class="navbar navbar-dark navbar-expand-sm" style="background-color: #285e8e">
             <ul class="navbar-nav mr-auto">
 
                 <li class ="nav-item active">
-                    <a class="nav-link" href="#">Medium Daily News</a>
+                    <a class="nav-link" href="#">Your visualization tool</a>
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Recent</a>
+                    <a class="nav-link" href="#">Datasets</a>
                 </li>
 
                 <!-- Dropdown -->
 
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
-                        Topics
+                        Visualizations
                     </a>
                     <div class="dropdown-menu">
                         <a class="dropdown-item" href="#">Link 1</a>
@@ -41,7 +58,7 @@
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Contribute</a>
+                    <a class="nav-link" href="#">FAQ</a>
                 </li>
 
             </ul>
@@ -50,11 +67,58 @@
             <ul class="navbar-nav ml-auto">
                 <form class="form-group" action="action_page.php">
                     <input class="form-control-sm" type="text" placeholder="Search">
-                    <button class="btn-sm btn-info" type="submit">Search</button>
+                    <button class="btn-sm btn-secondary btn-lg" type="submit">Search</button>
                 </form>
             </ul>
 
         </nav>
-        {{ div | safe }}
+
+                <!-- Main Content -->
+        <section id="intro">
+            <div class = "intro-container">
+                <div id = "introCarousel" class="carousel slide carousel-fade" data-ride="carousel">
+                    <ol class="carousel-indicators"></ol>
+
+                    <div class="carousel-inner" role = "listbox">
+
+                        <div class="carousel-item active">
+                            <div class="carousel-background"></div>
+                            <div class = "carousel-container">
+                                <div class = "carousel-content">
+                                    <h2> We visualize your data</h2>
+                                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea c </p>
+                                    <a href ="#" class="btn-get-started scrollto">Get Started</a>
+                                    <div id = "homegraph">
+                                        {{ div | safe }}
+{#                                        {{ script | safe }}#}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+{#                <div class = "col">#}
+{#                    <div class = "card-lg bg-light" id = "maincontent">#}
+{#                        <h1> Visualization </h1>#}
+{#                        <hr>#}
+{#                        <div id = "homegraph">#}
+{#                            {{ div | safe }}#}
+{#                        </div>#}
+{##}
+{#                        <hr>#}
+{##}
+{#                        <hr>#}
+{##}
+{#                        <p>#}
+{#                            blablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablabla#}
+{#                            blablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablabla#}
+{#                        </p>#}
+{#                    </div>#}
+{#                </div>#}
+
+            </div>
+        </div>
     </body>
 </html>
