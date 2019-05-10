@@ -16,6 +16,16 @@ p{
     color: #ffefef;
 }
 
+a{
+  font-family: 'Open Sans', sans-serif;
+  font-size: 20px;
+  color: #ffefef;
+}
+
+a:hover{
+  color: #000000;
+}
+
 .column{
   float: left;
   width: 33.33%;
