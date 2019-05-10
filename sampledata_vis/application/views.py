@@ -35,7 +35,7 @@ def coauthorship(request):
 
         TOOLTIPS = [
             ("index", "@index")]
-        plot = figure(title="GephiMatrix Co-Authorship visualisation", x_range=(-1.1, 1.1), y_range=(-1.1, 1.1),
+        plot = figure(title="", x_range=(-1.1, 1.1), y_range=(-1.1, 1.1),
                       tooltips=TOOLTIPS)
         graph = from_networkx(g, nx.spring_layout, scale=2, center=(0, 0))
 
