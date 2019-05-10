@@ -42,7 +42,7 @@ def homepage(request):
     # Return to django homepage with componenents sent as arguments which will then be displayed
     return render_to_response('pages/base.html', dict(script=script, div=div))
 
-def visualization1(request):
+def coauthorship(request):
     G = nx.karate_club_graph()
 
     plot = Plot(plot_width=400, plot_height=400, x_range=Range1d(-1.1, 1.1), y_range=Range1d(-1.1, 1.1))
@@ -72,7 +72,7 @@ def visualization1(request):
     script, div = components(plot)
     return render_to_response('pages/visualization1.html', dict(script=script, div=div))
 
-def visualization2(request):
+def weightedgraph(request):
     G = nx.karate_club_graph()
 
     plot = Plot(plot_width=400, plot_height=400, x_range=Range1d(-1.1, 1.1), y_range=Range1d(-1.1, 1.1))
@@ -101,4 +101,3 @@ def visualization2(request):
     # store comments
     script, div = components(plot)
     return render_to_response('pages/visualization2.html', dict(script=script, div=div))
-
