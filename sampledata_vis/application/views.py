@@ -1,6 +1,8 @@
 from django.shortcuts import render, render_to_response, HttpResponse
 from bokeh.plotting import figure, output_file, show
 from bokeh.embed import components
+import csv
+import time
 import pandas as pd
 import numpy as np
 import networkx as nx
@@ -14,30 +16,40 @@ def homepage(request):
     return render_to_response('pages/base.html')
 
 def coauthorship(request):
-    G = nx.karate_club_graph()
+    with open("application/dataSet/GephiMatrix_co-authorship.csv") as data:
+        start = time.time()
+        csv_reader = csv.reader(data, delimiter=';')
+        processedData = list(csv_reader)
+        header = processedData[0]
+        g = nx.Graph()
+        for i in range(1, len(processedData[0])):
+            g.add_node(processedData[0][i])
+        for i in range(1, len(processedData)):
+            for e in range(i, len(processedData[i])):
+                try:
+                    value = int(processedData[i][e])
+                    if value > 0:
+                        g.add_edge(header[i], header[e], weight=value)
+                except:
+                    pass
 
-    plot = Plot(plot_width=400, plot_height=400, x_range=Range1d(-1.1, 1.1), y_range=Range1d(-1.1, 1.1))
-    plot.background_fill_color = "#050976"
-    plot.background_fill_alpha = 0
-    plot.border_fill_color = "#050976"
-    plot.border_fill_alpha = 0
+        TOOLTIPS = [
+            ("index", "@index")]
+        plot = figure(title="GephiMatrix Co-Authorship visualisation", x_range=(-1.1, 1.1), y_range=(-1.1, 1.1),
+                      tooltips=TOOLTIPS)
+        graph = from_networkx(g, nx.spring_layout, scale=2, center=(0, 0))
 
-    plot.add_tools(HoverTool(tooltips=None), TapTool(), BoxSelectTool())
+        graph.edge_renderer.glyph = MultiLine(line_color="#CCCCCC", line_width=2)
+        graph.edge_renderer.selection_glyph = MultiLine(line_color=Spectral4[2], line_width=2)
+        graph.edge_renderer.hover_glyph = MultiLine(line_color=Spectral4[1], line_width=2)
 
-    graph_renderer = from_networkx(G, nx.circular_layout, scale=1, center=(0, 0))
+        graph.node_renderer.glyph = Circle(fill_color=Spectral4[0])
+        graph.node_renderer.selection_glyph = Circle(fill_color=Spectral4[2])
+        graph.node_renderer.hover_glyph = Circle(fill_color=Spectral4[1])
 
-    graph_renderer.node_renderer.glyph = Circle(size=15, fill_color="#FCFCFC")
-    graph_renderer.node_renderer.selection_glyph = Circle(size=15, fill_color="#FCFCFC")
-    graph_renderer.node_renderer.hover_glyph = Circle(size=15, fill_color="#22A784")
-
-    graph_renderer.edge_renderer.glyph = MultiLine(line_color="#FCFCFC", line_alpha=0.8, line_width=5)
-    graph_renderer.edge_renderer.selection_glyph = MultiLine(line_color="#FCFCFC", line_width=5)
-    graph_renderer.edge_renderer.hover_glyph = MultiLine(line_color="#050976", line_width=5)
-
-    graph_renderer.selection_policy = NodesAndLinkedEdges()
-    graph_renderer.inspection_policy = EdgesAndLinkedNodes()
-
-    plot.renderers.append(graph_renderer)
+        graph.selection_policy = NodesAndLinkedEdges()
+        graph.inspection_policy = NodesAndLinkedEdges()
+        plot.renderers.append(graph)
 
     # store comments
     script, div = components(plot)
