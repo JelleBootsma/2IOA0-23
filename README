@@ -1,1 +1,18 @@
 Hello!
+
+We are group 23, and this is our prototype for a data visualization website.
+This website can be ran by going to the folder directory in your command prompt, inside of the project's directory,
+(sampledata_vis) you can open the virtual environment by entering:
+Script\activate.
+Then you can run the project by:
+python manage.py runserver
+
+You can also find our website through this link:
+https://group23datavisualization.herokuapp.com/
+
+We have two basic visualizations implemented on the website:
+1. Coauthorship visualization
+2. Weighted Network graph
+These visualizations can be found through selecting the links to these visualizations on either the navigation bar called
+visualizations, or at the bottom of our homepage. Visualization 3 and loading data are not yet available. The
+visualizations might take some time, we are still working on runtime improvements.
