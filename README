@@ -3,7 +3,7 @@ Hello!
 We are group 23, and this is our prototype for a data visualization website.
 This website can be ran by going to the folder directory in your command prompt, inside of the project's directory,
 (sampledata_vis) you can open the virtual environment by entering:
-Script\activate.
+Scripts\activate.
 Then you can run the project by:
 python manage.py runserver
 
