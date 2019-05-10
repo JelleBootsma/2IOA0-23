@@ -56,9 +56,21 @@ def coauthorship(request):
     return render_to_response('pages/visualization1.html', dict(script=script, div=div))
 
 def weightedgraph(request):
-    G = nx.karate_club_graph()
+    df = pd.read_csv('GephiMatrix_author_similarity.csv', sep=';')
+    nArr = df.index.values
+    dfArr = df.values
 
-    plot = Plot(plot_width=400, plot_height=400, x_range=Range1d(-1.1, 1.1), y_range=Range1d(-1.1, 1.1))
+    G=nx.Graph()
+    G.add_nodes_from(nArr)
+
+    for x in range(len(df)-1):
+        xVal = x+1
+        for y in range(x):
+            if dfArr[xVal][y] > 0.0:
+                G.add_edge(nArr[xVal],nArr[y],weight=dfArr[xVal][y])
+
+
+    plot = Plot(plot_width=600, plot_height=600, x_range=Range1d(-1.1, 1.1), y_range=Range1d(-1.1, 1.1))
     plot.background_fill_color = "#050976"
     plot.background_fill_alpha = 0
     plot.border_fill_color = "#050976"
