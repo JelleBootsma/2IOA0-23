@@ -20,6 +20,7 @@ a{
   font-family: 'Open Sans', sans-serif;
   font-size: 20px;
   color: #ffefef;
+  text-align: center;
 }
 
 a:hover{
@@ -27,15 +28,24 @@ a:hover{
 }
 
 .column{
-  float: left;
+  float: none;
   width: 33.33%;
   padding: 15px;
+}
+
+.row{
+  text-align: center;
+}
+
+.centerAlign{
+  text-align: center;
+  position: absolute;
 }
 
 .row:after{
   content: "";
   display: table;
-  clear: both;
+  clear: left;
 }
 
 @media screen and (max-width:600px){
