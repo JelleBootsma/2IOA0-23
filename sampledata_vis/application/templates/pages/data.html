@@ -3,7 +3,6 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta charset = "UTF-8">
     <meta http-equiv="X-UA-Compatible" content="ÏE-Edge">
     <meta content="width-device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
 
@@ -15,6 +14,7 @@
         <!-- Bootstrap core Css -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.0/css/bootstrap.min.css" integrity="sha384-PDle/QlgIONtM1aqA2Qemk5gPOE7wFq8+Em+G/hmo5Iq0CCmYZLv3fVRDJ4MMwEA" crossorigin="anonymous">
 
+        <!-- Main css -->
     <link rel = "stylesheet" type = "text/css" href = "{% static 'css/main.css' %}">
 
         <!--Javascript -->
@@ -29,10 +29,10 @@
     <script src="http://cdn.pydata.org/bokeh/release/bokeh-1.1.0.min.js"></script>
     <script src="http://cdn.pydata.org/bokeh/release/bokeh-widgets-1.1.0.min.js"></script>
         {{ script | safe }}
-    <title>Visualization 2</title>
+    <title>Data</title>
 </head>
 <body>
-     <nav class="navbar navbar-dark navbar-expand-sm" style="background-color: #285e8e">
+    <nav class="navbar navbar-dark navbar-expand-sm" style="background-color: #285e8e">
             <ul class="navbar-nav mr-auto">
 
                 <li class ="nav-item active">
@@ -72,8 +72,5 @@
 
         </nav>
 
-     <div id = "homegraph">
-         {{ div | safe }}
-    </div>
 </body>
 </html>

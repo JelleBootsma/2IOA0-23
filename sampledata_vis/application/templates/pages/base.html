@@ -37,11 +37,11 @@
             <ul class="navbar-nav mr-auto">
 
                 <li class ="nav-item active">
-                    <a class="nav-link" href="#">Your visualization tool</a>
+                    <a class="nav-link" href="{% url 'home' %}">Your visualization tool</a>
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Datasets</a>
+                    <a class="nav-link" href={% url 'data' %}>Datasets</a>
                 </li>
 
                 <!-- Dropdown -->
@@ -51,14 +51,14 @@
                         Visualizations
                     </a>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item" href="visualization1.html">Coauthorship visualization</a>
-                        <a class="dropdown-item" href="visualization2.html">Weighted Network Graph</a>
+                        <a class="dropdown-item" href={% url 'vis1' %}>Coauthorship visualization</a>
+                        <a class="dropdown-item" href={% url 'vis2' %}>Weighted Network Graph</a>
                         <a class="dropdown-item" href="#">Visualization 3</a>
                     </div>
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="#">FAQ</a>
+                    <a class="nav-link" href={% url 'faq' %}>FAQ</a>
                 </li>
 
             </ul>
