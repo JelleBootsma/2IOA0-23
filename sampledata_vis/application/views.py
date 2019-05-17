@@ -13,7 +13,8 @@ from bokeh.palettes import *
 
 # Create your views here.
 def homepage(request):
-    return render_to_response('pages/base.html')
+    return render(request, 'pages/base.html')
+
 
 def coauthorship(request):
     with open("application/dataSet/GephiMatrix_co-authorship.csv") as data:
@@ -55,10 +56,22 @@ def coauthorship(request):
     script, div = components(plot)
     return render_to_response('pages/visualization1.html', dict(script=script, div=div))
 
-def weightedgraph(request):
-    G = nx.karate_club_graph()
 
-    plot = Plot(plot_width=400, plot_height=400, x_range=Range1d(-1.1, 1.1), y_range=Range1d(-1.1, 1.1))
+def weightedgraph(request):
+    df = pd.read_csv('GephiMatrix_author_similarity.csv', sep=';')
+    nArr = df.index.values
+    dfArr = df.values
+
+    G = nx.Graph()
+    G.add_nodes_from(nArr)
+
+    for x in range(len(df) - 1):
+        xVal = x + 1
+        for y in range(x):
+            if dfArr[xVal][y] > 0.0:
+                G.add_edge(nArr[xVal], nArr[y], weight=dfArr[xVal][y])
+
+    plot = Plot(plot_width=600, plot_height=600, x_range=Range1d(-1.1, 1.1), y_range=Range1d(-1.1, 1.1))
     plot.background_fill_color = "#050976"
     plot.background_fill_alpha = 0
     plot.border_fill_color = "#050976"
@@ -84,3 +97,11 @@ def weightedgraph(request):
     # store comments
     script, div = components(plot)
     return render_to_response('pages/visualization2.html', dict(script=script, div=div))
+
+
+def faq(request):
+    return render(request, 'pages/FAQ.html')
+
+
+def data(request):
+    return render(request, 'pages/data.html')

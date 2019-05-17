@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.0/css/bootstrap.min.css" integrity="sha384-PDle/QlgIONtM1aqA2Qemk5gPOE7wFq8+Em+G/hmo5Iq0CCmYZLv3fVRDJ4MMwEA" crossorigin="anonymous">
 
         <!-- Main css -->
-
+    <link rel = "stylesheet" type = "text/css" href = "{% static 'css/main.css' %}">
 
         <!--Javascript -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
@@ -33,8 +33,49 @@
     <title>Visualization 1</title>
 </head>
 <body>
- <div id = "homegraph">
-     {{ div | safe }}
- </div>
+
+     <nav class="navbar navbar-dark navbar-expand-sm" style="background-color: #285e8e">
+            <ul class="navbar-nav mr-auto">
+
+                <li class ="nav-item active">
+                    <a class="nav-link" href={% url 'home' %}>Your visualization tool</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href={% url 'data' %}>Datasets</a>
+                </li>
+
+                <!-- Dropdown -->
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
+                        Visualizations
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href={% url 'vis1' %}>Coauthorship visualization</a>
+                        <a class="dropdown-item" href={% url 'vis2' %}>Weighted Network Graph</a>
+                        <a class="dropdown-item" href="#">Visualization 3</a>
+                    </div>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href={% url 'faq' %}>FAQ</a>
+                </li>
+
+            </ul>
+
+            <!-- Search Bar -->
+            <ul class="navbar-nav ml-auto">
+                <form class="form-group" action="action_page.php">
+                    <input class="form-control-sm" type="text" placeholder="Search">
+                    <button class="btn-sm btn-secondary btn-lg" type="submit">Search</button>
+                </form>
+            </ul>
+
+        </nav>
+
+     <div id = "homegraph">
+         {{ div | safe }}
+    </div>
 </body>
 </html>
