@@ -1,3 +1,5 @@
+from typing import TextIO
+
 from django.shortcuts import render, render_to_response, HttpResponse
 from bokeh.plotting import figure, output_file, show
 from bokeh.embed import components
@@ -106,6 +108,42 @@ def faq(request):
 def data(request):
     return render(request, 'pages/data.html')
 
-
 def step1(request):
     return render(request, 'pages/step1.html')
+
+def adjacencymatrix(request):
+    with open("application/dataSet/GephiMatrix_co-authorship.csv") as data:
+        start = time.time()
+        csv_reader = csv.reader(data, delimiter=';')
+        processedData = list(csv_reader)
+        header = processedData[0]
+        g = nx.Graph()
+
+        for source, targets in processedData:
+            for inner_dict in targets:
+                assert len(inner_dict) == 1
+                g.add_edge(int(source) - 1, int(inner_dict.keys()[0]) - 1,
+                                   weight=inner_dict.values()[0])
+        adjacency_matrix = nx.adjacency_matrix(g)
+
+        TOOLTIPS = [
+            ("index", "@index")]
+        plot = figure(title="", x_range=(-1.1, 1.1), y_range=(-1.1, 1.1),
+                      tooltips=TOOLTIPS)
+        graph = from_networkx(g, nx.spring_layout, scale=2, center=(0, 0))
+
+        graph.edge_renderer.glyph = MultiLine(line_color="#CCCCCC", line_width=2)
+        graph.edge_renderer.selection_glyph = MultiLine(line_color=Spectral4[2], line_width=2)
+        graph.edge_renderer.hover_glyph = MultiLine(line_color=Spectral4[1], line_width=2)
+
+        graph.node_renderer.glyph = Circle(fill_color=Spectral4[0])
+        graph.node_renderer.selection_glyph = Circle(fill_color=Spectral4[2])
+        graph.node_renderer.hover_glyph = Circle(fill_color=Spectral4[1])
+
+        graph.selection_policy = NodesAndLinkedEdges()
+        graph.inspection_policy = NodesAndLinkedEdges()
+        plot.renderers.append(graph)
+
+    # store comments
+    script, div = components(plot)
+    return render_to_response('pages/visualization1.html', dict(script=script, div=div))
