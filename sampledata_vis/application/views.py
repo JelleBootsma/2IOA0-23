@@ -105,3 +105,7 @@ def faq(request):
 
 def data(request):
     return render(request, 'pages/data.html')
+
+
+def step1(request):
+    return render(request, 'pages/step1.html')
