@@ -1,4 +1,4 @@
-from typing import TextIO
+from typing import TextIO, List, Any
 
 from django.shortcuts import render, render_to_response, HttpResponse
 from bokeh.plotting import figure, output_file, show
@@ -110,38 +110,64 @@ def data(request):
 
 
 def adjacencymatrix(request):
-    with open("application/dataSet/GephiMatrix_co-authorship.csv") as data:
-        start = time.time()
-        csv_reader = csv.reader(data, delimiter=';')
-        processedData = list(csv_reader)
-        header = processedData[0]
-        g = nx.Graph()
 
-        for source, targets in processedData:
-            for inner_dict in targets:
-                assert len(inner_dict) == 1
-                g.add_edge(int(source) - 1, int(inner_dict.keys()[0]) - 1,
-                                   weight=inner_dict.values()[0])
-        adjacency_matrix = nx.adjacency_matrix(g)
+    df = pd.read_csv('application/dataSet/authors.csv', sep=';')
+    nArr = df.index.values
+    dfArr = df.values
 
-        TOOLTIPS = [
-            ("index", "@index")]
-        plot = figure(title="", x_range=(-1.1, 1.1), y_range=(-1.1, 1.1),
-                      tooltips=TOOLTIPS)
-        graph = from_networkx(g, nx.spring_layout, scale=2, center=(0, 0))
+    print(dfArr)
+    nodes = dfArr
+    names = nArr
 
-        graph.edge_renderer.glyph = MultiLine(line_color="#CCCCCC", line_width=2)
-        graph.edge_renderer.selection_glyph = MultiLine(line_color=Spectral4[2], line_width=2)
-        graph.edge_renderer.hover_glyph = MultiLine(line_color=Spectral4[1], line_width=2)
+    N = len(names)
+    counts = np.zeros((N, N))
+    for i in range(0,len(nodes)):
+        for j in range(0,len(nodes)):
+            counts[i, j] = nodes[j][i]
+            counts[j, i] = nodes[j][i]
+    colormap = ["#444444", "#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99",
+                "#e31a1c", "#fdbf6f", "#ff7f00", "#cab2d6", "#6a3d9a"]
+    xname = []
+    yname = []
+    color = []
+    alpha = []
+    for i, node1 in enumerate(counts):
+        for j, node2 in enumerate(counts):
+            xname.append(names[i])
+            yname.append(names[j])
+            alpha.append(min(counts[i, j] / 4.0, 0.9) + 0.1)
+            if i == j :
+                color.append(colormap[1])
+            else:
+                color.append('lightgrey')
+    print('xname', len(xname))
+    print('yname', len(yname))
+    print('names', len(names))
 
-        graph.node_renderer.glyph = Circle(fill_color=Spectral4[0])
-        graph.node_renderer.selection_glyph = Circle(fill_color=Spectral4[2])
-        graph.node_renderer.hover_glyph = Circle(fill_color=Spectral4[1])
+    data = dict(
+        xname=xname,
+        yname=yname,
+        colors=color,
+        alphas=alpha,
+        count=counts.flatten(),
+    )
+    p = figure(title="Les Mis Occurrences",
+               x_axis_location="above", tools="hover,save",
+               x_range=list(reversed(names)), y_range=names,
+               tooltips=[('names', '@yname, @xname'), ('count', '@count')])
+    p.plot_width = 800
+    p.plot_height = 800
+    p.grid.grid_line_color = None
+    p.axis.axis_line_color = None
+    p.axis.major_tick_line_color = None
+    p.axis.major_label_text_font_size = "5pt"
+    p.axis.major_label_standoff = 0
+    p.xaxis.major_label_orientation = np.pi / 3
 
-        graph.selection_policy = NodesAndLinkedEdges()
-        graph.inspection_policy = NodesAndLinkedEdges()
-        plot.renderers.append(graph)
+    p.rect('xname', 'yname', 0.9, 0.9, source=data,
+           color='colors', alpha='alphas', line_color=None,
+           hover_line_color='black', hover_color='colors')
 
     # store comments
-    script, div = components(plot)
+    script, div = components(p)
     return render_to_response('pages/visualization1.html', dict(script=script, div=div))
