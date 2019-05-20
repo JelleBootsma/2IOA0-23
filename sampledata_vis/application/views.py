@@ -108,11 +108,20 @@ def faq(request):
 def data(request):
     return render(request, 'pages/data.html')
 
+
+def loadData(request):
+    return render(request, 'pages/loadData.html')
+
+
 def step1(request):
     return render(request, 'pages/step1.html')
 
-def adjacencymatrix(request):
 
+def step2(request):
+    return render(request, 'pages/step2.html')
+
+
+def adjacencymatrix(request):
     df = pd.read_csv('application/dataSet/authors.csv', sep=';')
     nArr = df.index.values
     dfArr = df.values
@@ -123,8 +132,8 @@ def adjacencymatrix(request):
 
     N = len(names)
     counts = np.zeros((N, N))
-    for i in range(0,len(nodes)):
-        for j in range(0,len(nodes)):
+    for i in range(0, len(nodes)):
+        for j in range(0, len(nodes)):
             counts[i, j] = nodes[j][i]
             counts[j, i] = nodes[j][i]
     colormap = ["#444444", "#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99",
@@ -138,7 +147,7 @@ def adjacencymatrix(request):
             xname.append(names[i])
             yname.append(names[j])
             alpha.append(min(counts[i, j] / 4.0, 0.9) + 0.1)
-            if i == j :
+            if i == j:
                 color.append(colormap[1])
             else:
                 color.append('lightgrey')

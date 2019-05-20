@@ -53,7 +53,7 @@
                     <div class="dropdown-menu">
                         <a class="dropdown-item" href={% url 'vis1' %}>Coauthorship visualization</a>
                         <a class="dropdown-item" href={% url 'vis2' %}>Weighted Network Graph</a>
-                        <a class="dropdown-item" href="#">Visualization 3</a>
+                        <a class="dropdown-item" href={% url 'vis3' %}>Adjacency Matrix</a>
                     </div>
                 </li>
 
@@ -80,9 +80,9 @@
                             <div class = "carousel-container">
                                 <div class = "carousel-content">
                                     <h2> Step 1: </h2>
-                                    <a href ="#" class="btn-get-started scrollto big">Load your own data</a>
+                                    <a class="btn-get-started big" href={% url 'loadData' %}>Load your own data</a>
                                     <h3>Or</h3>
-                                    <a href ="#" class="btn-get-started scrollto big">Load an existing dataset</a>
+                                    <a class="btn-get-started big" href={% url 'data' %} >Load an existing dataset</a>
                                 </div>
                             </div>
                 </div>
