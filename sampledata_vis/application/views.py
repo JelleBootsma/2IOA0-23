@@ -60,18 +60,14 @@ def coauthorship(request):
 
 
 def weightedgraph(request):
+
+    name = 'Ken_Pier'
+    #parts commented out do not work yet
+
+
     df = pd.read_csv('GephiMatrix_author_similarity.csv', sep=';')
-    nArr = df.index.values
-    dfArr = df.values
 
     G = nx.Graph()
-    G.add_nodes_from(nArr)
-
-    for x in range(len(df) - 1):
-        xVal = x + 1
-        for y in range(x):
-            if dfArr[xVal][y] > 0.0:
-                G.add_edge(nArr[xVal], nArr[y], weight=dfArr[xVal][y])
 
     plot = Plot(plot_width=600, plot_height=600, x_range=Range1d(-1.1, 1.1), y_range=Range1d(-1.1, 1.1))
     plot.background_fill_color = "#050976"
@@ -81,24 +77,50 @@ def weightedgraph(request):
 
     plot.add_tools(HoverTool(tooltips=None), TapTool(), BoxSelectTool())
 
-    graph_renderer = from_networkx(G, nx.circular_layout, scale=1, center=(0, 0))
+    nArr = df.index.values
+    dfArr = df.values
+    namenumber = 0
 
-    graph_renderer.node_renderer.glyph = Circle(size=15, fill_color="#FCFCFC")
-    graph_renderer.node_renderer.selection_glyph = Circle(size=15, fill_color="#FCFCFC")
-    graph_renderer.node_renderer.hover_glyph = Circle(size=15, fill_color="#22A784")
+    for x in range(len(df)):
+        if nArr[x] == name:
+            namenumber = x
+            break
 
-    graph_renderer.edge_renderer.glyph = MultiLine(line_color="#FCFCFC", line_alpha=0.8, line_width=5)
-    graph_renderer.edge_renderer.selection_glyph = MultiLine(line_color="#FCFCFC", line_width=5)
-    graph_renderer.edge_renderer.hover_glyph = MultiLine(line_color="#050976", line_width=5)
+    G.add_node(name)
+
+    node_sizes = {}
+    for x in range(0, len(df)):
+        if dfArr[namenumber][x] > 0.0 and dfArr[namenumber][x] < 1.0:
+            G.add_node(nArr[x])
+            G.add_edge(nArr[namenumber], nArr[x], weight=dfArr[namenumber][x])
+        #    node_sizes[nArr[x]] = 20 * G[nArr[namenumber]][nArr[x]]['weight']
+        #    G.nodes[nArr[x]]['size'] = G[nArr[namenumber]][nArr[x]]['weight']
+        #if dfArr[namenumber][x] == 1.0:
+        #    G.nodes[nArr[x]]['size'] = 1.0
+        #    node_sizes[nArr[x]] = 20.0
+
+    #source = ColumnDataSource(pd.DataFrame.from_dict({k:v for k,v in G.nodes(data=True)}, orient='index'))
+
+    graph_renderer = from_networkx(G, nx.spring_layout, center=(0, 0))  # takes a long time  (circular, shell, random)
+
+    #graph_renderer.node_renderer.data_source = source
+    graph_renderer.node_renderer.glyph = Circle(size=7, fill_color="#FCFCFC")
+    graph_renderer.node_renderer.selection_glyph = Circle(size=7, fill_color="#000000")
+    graph_renderer.node_renderer.hover_glyph = Circle(size=7, fill_color="#22A784")
+
+    graph_renderer.edge_renderer.glyph = MultiLine(line_color="#050976", line_alpha=0.2, line_width=1)
+    graph_renderer.edge_renderer.selection_glyph = MultiLine(line_color="#050976", line_alpha=1, line_width=1)
+    graph_renderer.edge_renderer.hover_glyph = MultiLine(line_color="#050976", line_alpha=0.8 , line_width=1)
 
     graph_renderer.selection_policy = NodesAndLinkedEdges()
-    graph_renderer.inspection_policy = EdgesAndLinkedNodes()
+    graph_renderer.inspection_policy = NodesAndLinkedEdges()
 
     plot.renderers.append(graph_renderer)
 
     # store comments
     script, div = components(plot)
     return render_to_response('pages/visualization2.html', dict(script=script, div=div))
+
 
 
 def faq(request):
