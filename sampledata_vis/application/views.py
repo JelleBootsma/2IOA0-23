@@ -8,7 +8,7 @@ import time
 import pandas as pd
 import numpy as np
 import networkx as nx
-from bokeh.models import Plot, Range1d, MultiLine, Circle, HoverTool, TapTool, BoxSelectTool
+from bokeh.models import Plot, Range1d, MultiLine, Circle, HoverTool, TapTool, BoxSelectTool, ColumnDataSource
 from bokeh.models.graphs import from_networkx, NodesAndLinkedEdges, EdgesAndLinkedNodes
 from bokeh.palettes import *
 
@@ -62,18 +62,16 @@ def coauthorship(request):
 def weightedgraph(request):
 
     name = 'Ken_Pier'
-    #parts commented out do not work yet
-
 
     df = pd.read_csv('GephiMatrix_author_similarity.csv', sep=';')
 
-    G = nx.Graph()
+    Graph = nx.Graph()
 
     plot = Plot(plot_width=600, plot_height=600, x_range=Range1d(-1.1, 1.1), y_range=Range1d(-1.1, 1.1))
-    plot.background_fill_color = "#050976"
-    plot.background_fill_alpha = 0
-    plot.border_fill_color = "#050976"
-    plot.border_fill_alpha = 0
+    plot.background_fill_color = "#FCFCFC"
+    plot.background_fill_alpha = 1
+    plot.border_fill_color = "#FCFCFC"
+    plot.border_fill_alpha = 1
 
     plot.add_tools(HoverTool(tooltips=None), TapTool(), BoxSelectTool())
 
@@ -86,34 +84,69 @@ def weightedgraph(request):
             namenumber = x
             break
 
-    G.add_node(name)
+    node_sizes = []
+    alpha = []
+    alpha_hover = []
+    width = []
+    names =[]
+    edgeName = []
+    line_color = []
 
-    node_sizes = {}
+    numberOfNodes = 1
+
+    Graph.add_node(name)
+    node_sizes.append(25)
+    names.append(nArr[x])
+
     for x in range(0, len(df)):
-        if dfArr[namenumber][x] > 0.0 and dfArr[namenumber][x] < 1.0:
-            G.add_node(nArr[x])
-            G.add_edge(nArr[namenumber], nArr[x], weight=dfArr[namenumber][x])
-        #    node_sizes[nArr[x]] = 20 * G[nArr[namenumber]][nArr[x]]['weight']
-        #    G.nodes[nArr[x]]['size'] = G[nArr[namenumber]][nArr[x]]['weight']
-        #if dfArr[namenumber][x] == 1.0:
-        #    G.nodes[nArr[x]]['size'] = 1.0
-        #    node_sizes[nArr[x]] = 20.0
+        if 0.0 < dfArr[namenumber][x] and nArr[x] != name:
+            Graph.add_node(nArr[x])
+            Graph.add_edge(name, nArr[x], weight=dfArr[namenumber][x])
+            node_sizes.append(25 * Graph[name][nArr[x]]['weight'])
+            alpha.append(Graph[name][nArr[x]]['weight'])
+            alpha_hover.append(1)
+            width.append(int(5 * Graph[name][nArr[x]]['weight']))
+            names.append(nArr[x])
+            edgeName.append([nArr[x], name])
+            numberOfNodes += 1
+            line_color.append('#FF0000')
 
     #source = ColumnDataSource(pd.DataFrame.from_dict({k:v for k,v in G.nodes(data=True)}, orient='index'))
 
-    graph_renderer = from_networkx(G, nx.spring_layout, center=(0, 0))  # takes a long time  (circular, shell, random)
+    nodeSource = ColumnDataSource(data=dict(
+        size=node_sizes,
+        index=names,
+    ))
 
-    #graph_renderer.node_renderer.data_source = source
-    graph_renderer.node_renderer.glyph = Circle(size=7, fill_color="#FCFCFC")
-    graph_renderer.node_renderer.selection_glyph = Circle(size=7, fill_color="#000000")
-    graph_renderer.node_renderer.hover_glyph = Circle(size=7, fill_color="#22A784")
+    edgeSource = ColumnDataSource(data=dict(
+        line_alpha=alpha,
+        line_alpha_hover=alpha_hover,
+        line_width=width,
+        line_color=line_color,
+        index=edgeName,
+        start=[name] * (numberOfNodes - 1),
+        end=names[1:],
+    ))
 
-    graph_renderer.edge_renderer.glyph = MultiLine(line_color="#050976", line_alpha=0.2, line_width=1)
-    graph_renderer.edge_renderer.selection_glyph = MultiLine(line_color="#050976", line_alpha=1, line_width=1)
-    graph_renderer.edge_renderer.hover_glyph = MultiLine(line_color="#050976", line_alpha=0.8 , line_width=1)
+    graph_renderer = from_networkx(Graph, nx.shell_layout, center=(0, 0))
 
-    graph_renderer.selection_policy = NodesAndLinkedEdges()
-    graph_renderer.inspection_policy = NodesAndLinkedEdges()
+    graph_renderer.node_renderer.data_source = nodeSource
+    graph_renderer.node_renderer.glyph = Circle(size='size', fill_color="#FCFCFC")
+    graph_renderer.node_renderer.selection_glyph = Circle(size='size', fill_color="#000000")
+    graph_renderer.node_renderer.hover_glyph = Circle(size='size', fill_color="#22A784")
+
+    graph_renderer.edge_renderer.data_source = edgeSource
+    graph_renderer.edge_renderer.glyph = MultiLine(line_color='line_color', line_alpha='line_alpha',
+                                                   line_width='line_width')
+
+    graph_renderer.edge_renderer.selection_glyph = MultiLine(line_color='line_color', line_alpha='line_alpha_hover',
+                                                             line_width='line_width')
+
+    graph_renderer.edge_renderer.hover_glyph = MultiLine(line_color='line_color', line_alpha='line_alpha_hover',
+                                                         line_width='line_width')
+
+    graph_renderer.selection_policy = NodesAndLinkedEdges() and EdgesAndLinkedNodes()
+    graph_renderer.inspection_policy = NodesAndLinkedEdges() and EdgesAndLinkedNodes()
 
     plot.renderers.append(graph_renderer)
 
