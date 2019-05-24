@@ -1,3 +1,1 @@
-web: gunicorn sampledata_vis.wsgi
-
-#web: bokeh serve --port=5000 --num-procs=0 --host=testvisualization23.herokuapp.com --use-xheaders myapp.py
+web: bokeh serve --port=$PORT --num-procs=0 --host=testvisualization23.herokuapp.com --use-xheaders myapp.py ; gunicorn sampledata_vis.wsgi
