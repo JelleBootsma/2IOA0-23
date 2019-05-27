@@ -70,10 +70,10 @@ def weightedgraph(request):
     G = nx.Graph()
 
     plot = Plot(plot_width=600, plot_height=600, x_range=Range1d(-1.1, 1.1), y_range=Range1d(-1.1, 1.1))
-    plot.background_fill_color = "#050976"
-    plot.background_fill_alpha = 0
+    plot.background_fill_color = "#ffffff"
+    plot.background_fill_alpha = 0.7
     plot.border_fill_color = "#050976"
-    plot.border_fill_alpha = 0
+    plot.border_fill_alpha = 0.7
 
     plot.add_tools(HoverTool(tooltips=None), TapTool(), BoxSelectTool())
 

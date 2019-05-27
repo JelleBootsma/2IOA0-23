@@ -10,6 +10,7 @@
         <link href = "https://fonts.googleapis.com/css?family=Open+Sans|Oswald" rel = "stylesheet">
         <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&subset=latin,cyrillic-ext" rel="stylesheet" type="text/css">
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Righteous&display=swap" rel="stylesheet">
 
         <!-- Bootstrap core Css -->
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.0/css/bootstrap.min.css" integrity="sha384-PDle/QlgIONtM1aqA2Qemk5gPOE7wFq8+Em+G/hmo5Iq0CCmYZLv3fVRDJ4MMwEA" crossorigin="anonymous">
@@ -37,7 +38,7 @@
             <ul class="navbar-nav mr-auto">
 
                 <li class ="nav-item active">
-                    <a class="nav-link" href="{% url 'home' %}">Visify</a>
+                    <a class="nav-link visfont" href="{% url 'home' %}">Visify</a>
                 </li>
 
                 <li class="nav-item">
@@ -78,9 +79,10 @@
             <div class = "intro-container">
                         <div class="carousel-item active">
                             <div class = "carousel-container">
-                                <div class = "carousel-content">
-                                    <h2> We visualize your data</h2>
-                                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea c </p>
+                                <div class = "carousel-content visfont">
+                                    <h1> Visify </h1>
+                                    <p>We visualize your data. With visify, you will be able to analyze relational data
+                                    sets in just three simple steps. You do the steps, we do the rest.</p>
                                     <a href ={%  url 'step1' %} class="btn-get-started big">Get Started!</a>
                                     <div id = "homegraph">
 {#                                        {{ div | safe }}#}
