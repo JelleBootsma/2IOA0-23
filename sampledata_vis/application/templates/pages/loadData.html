@@ -82,6 +82,14 @@
                                 <div class = "carousel-content">
                                     <h2 class = "visfont"> Upload your data </h2>
                                     <h3> Still under construction</h3>
+                                    <form method = "post" enctype = "multipart/form-data">
+                                        {% csrf_token %}
+                                        <p><input type="file" name ="document" accept=".csv"></p>
+                                        <p><button type = "submit">Upload file</button></p>
+                                    </form>
+                                    {% if url %}
+                                    <p>Uploaded file: <a href="{{ url }}">{{ url }}</a></p>
+                                    {% endif %}
                                     <a class="btn-get-started scrollto big" href={% url 'step2' %} >Continue</a>
                                 </div>
                             </div>
