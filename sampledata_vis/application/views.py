@@ -1,5 +1,5 @@
 from typing import TextIO, List, Any
-
+from django import forms
 from django.shortcuts import render, render_to_response, HttpResponse
 from bokeh.plotting import figure, output_file, show
 from bokeh.embed import components
@@ -11,6 +11,8 @@ import networkx as nx
 from bokeh.models import Plot, Range1d, MultiLine, Circle, HoverTool, TapTool, BoxSelectTool, ColumnDataSource
 from bokeh.models.graphs import from_networkx, NodesAndLinkedEdges, EdgesAndLinkedNodes
 from bokeh.palettes import *
+from django.views.generic import TemplateView
+from django.core.files.storage import FileSystemStorage
 
 
 # Create your views here.
@@ -68,6 +70,7 @@ def weightedgraph(request):
     Graph = nx.Graph()
 
     plot = Plot(plot_width=600, plot_height=600, x_range=Range1d(-1.1, 1.1), y_range=Range1d(-1.1, 1.1))
+
     plot.background_fill_color = "#FCFCFC"
     plot.background_fill_alpha = 1
     plot.border_fill_color = "#FCFCFC"
@@ -165,6 +168,12 @@ def data(request):
 
 
 def loadData(request):
+    context = {}
+    if request.method == 'POST':
+        uploaded_file = request.FILES['document']
+        fs = FileSystemStorage()
+        name = fs.save(uploaded_file.name, uploaded_file)
+        context['url'] = fs.url(name)
     return render(request, 'pages/loadData.html')
 
 

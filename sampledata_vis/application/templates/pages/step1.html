@@ -10,6 +10,7 @@
         <link href = "https://fonts.googleapis.com/css?family=Open+Sans|Oswald" rel = "stylesheet">
         <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&subset=latin,cyrillic-ext" rel="stylesheet" type="text/css">
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Righteous&display=swap" rel="stylesheet">
 
         <!-- Bootstrap core Css -->
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.0/css/bootstrap.min.css" integrity="sha384-PDle/QlgIONtM1aqA2Qemk5gPOE7wFq8+Em+G/hmo5Iq0CCmYZLv3fVRDJ4MMwEA" crossorigin="anonymous">
@@ -37,7 +38,7 @@
             <ul class="navbar-nav mr-auto">
 
                 <li class ="nav-item active">
-                    <a class="nav-link" href="{% url 'home' %}">Visify</a>
+                    <a class="nav-link visfont" href="{% url 'home' %}">Visify</a>
                 </li>
 
                 <li class="nav-item">
@@ -79,9 +80,9 @@
                         <div class="carousel-item active">
                             <div class = "carousel-container">
                                 <div class = "carousel-content">
-                                    <h2> Step 1: </h2>
+                                    <h2 class = "visfont"> Step 1: </h2>
                                     <a class="btn-get-started big" href={% url 'loadData' %}>Load your own data</a>
-                                    <h3>Or</h3>
+                                    <h2 class = "visfont">or</h2>
                                     <a class="btn-get-started big" href={% url 'data' %} >Load an existing dataset</a>
                                 </div>
                             </div>
