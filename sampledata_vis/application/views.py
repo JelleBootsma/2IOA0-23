@@ -186,11 +186,12 @@ def step2(request):
 
 
 def adjacencymatrix(request):
+    #df = pd.read_csv('application/dataSet/GephiMatrix_author_similarity.csv', sep=';')
     df = pd.read_csv('application/dataSet/authors.csv', sep=';')
+    #df = pd.read_csv('application/dataSet/authors_2.csv', sep=';')
     nArr = df.index.values
     dfArr = df.values
 
-    print(dfArr)
     nodes = dfArr
     names = nArr
 
@@ -200,8 +201,30 @@ def adjacencymatrix(request):
         for j in range(0, len(nodes)):
             counts[i, j] = nodes[j][i]
             counts[j, i] = nodes[j][i]
-    colormap = ["#444444", "#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99",
-                "#e31a1c", "#fdbf6f", "#ff7f00", "#cab2d6", "#6a3d9a"]
+    colormap = ["#FDFEFE", "#FCF3CF", "#F9E79F", "#F4D03F", "#F39C12", "#E67E22",
+                "#D35400", "#CB4335", "#C0392B", "#7B241C", "#4A235A"]
+
+    arrayi = []
+    arrayj = []
+    for i in names:
+        for j in names:
+            indexi = np.where(names == i)
+            indexj = np.where(names == j)
+            for q in indexi[0]:
+                for l in indexj[0]:
+                    if i == j and q != l:
+                        if q not in arrayj or l not in arrayi:
+                            names = np.delete(names, l)
+                            arrayi.append(q)
+                            arrayj.append(l)
+
+
+    for j in arrayj:
+        counts = np.delete(counts, (j), axis=0)
+        counts = np.delete(counts, (j), axis=1)
+    print(len(names))
+    print(len(counts))
+
     xname = []
     yname = []
     color = []
@@ -210,15 +233,40 @@ def adjacencymatrix(request):
         for j, node2 in enumerate(counts):
             xname.append(names[i])
             yname.append(names[j])
-            alpha.append(min(counts[i, j] / 4.0, 0.9) + 0.1)
-            if i == j:
-                color.append(colormap[1])
+            alpha.append(min(counts[i][j] , 0.6)+ 0.3)
+            if counts[i][j] == 0:
+                color.append(colormap[0])
+            elif counts[i][j] >= 0.5:
+                if counts[i][j] > 0.6:
+                    if counts[i][j] > 0.7:
+                        if counts[i][j] > 0.8:
+                            if counts[i][j] > 0.9:
+                                if counts[i][j] == 1.0:
+                                    color.append(colormap[10])
+                                else:
+                                    color.append(colormap[9])
+                            else:
+                                color.append(colormap[8])
+                        else:
+                            color.append(colormap[7])
+                    else:
+                        color.append(colormap[6])
+                else:
+                    color.append(colormap[5])
             else:
-                color.append('lightgrey')
-    print('xname', len(xname))
-    print('yname', len(yname))
-    print('names', len(names))
-
+                if counts[i][j] < 0.4:
+                    if counts[i][j] < 0.3:
+                        if counts[i][j] < 0.2:
+                            if counts[i][j] < 0.1:
+                                color.append(colormap[1])
+                            else:
+                                color.append(colormap[2])
+                        else:
+                            color.append(colormap[3])
+                    else:
+                        color.append(colormap[4])
+                else:
+                    color.append(colormap[4])
     data = dict(
         xname=xname,
         yname=yname,
@@ -226,21 +274,20 @@ def adjacencymatrix(request):
         alphas=alpha,
         count=counts.flatten(),
     )
-    p = figure(title="Les Mis Occurrences",
-               x_axis_location="above", tools="hover,save",
-               x_range=list(reversed(names)), y_range=names,
+    p = figure(x_axis_location="above", tools="hover,save,wheel_zoom,box_zoom,reset",
+               y_range=list(reversed(names)), x_range=names,
                tooltips=[('names', '@yname, @xname'), ('count', '@count')])
     p.plot_width = 800
     p.plot_height = 800
     p.grid.grid_line_color = None
     p.axis.axis_line_color = None
     p.axis.major_tick_line_color = None
-    p.axis.major_label_text_font_size = "5pt"
-    p.axis.major_label_standoff = 0
+    p.axis.major_label_text_font_size = "8pt"
+    p.axis.major_label_standoff = 1
     p.xaxis.major_label_orientation = np.pi / 3
 
     p.rect('xname', 'yname', 0.9, 0.9, source=data,
-           color='colors', alpha='alphas', line_color=None,
+           color='colors', alpha='alphas', line_color='#85929E',
            hover_line_color='black', hover_color='colors')
 
     # store comments
