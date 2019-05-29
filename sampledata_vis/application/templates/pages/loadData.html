@@ -64,13 +64,6 @@
 
             </ul>
 
-            <!-- Search Bar -->
-            <ul class="navbar-nav ml-auto">
-                <form class="form-group" action="action_page.php">
-                    <input class="form-control-sm" type="text" placeholder="Search">
-                    <button class="btn-sm btn-secondary btn-lg" type="submit">Search</button>
-                </form>
-            </ul>
 
         </nav>
 
@@ -81,15 +74,22 @@
                             <div class = "carousel-container">
                                 <div class = "carousel-content">
                                     <h2 class = "visfont"> Upload your data </h2>
-                                    <h3> Still under construction</h3>
-                                    <form method = "post" enctype = "multipart/form-data">
+                                    <form method = "post" enctype = "multipart/form-data" class="form-horizontal">
                                         {% csrf_token %}
-                                        <p><input type="file" name ="document" accept=".csv"></p>
-                                        <p><button type = "submit">Upload file</button></p>
+                                        <div class="form-group">
+                                            <label for="name" class="col-md-3 col-sm-3 col-xs-12 control-label">File: </label>
+                                            <div class="col-md-8">
+                                                <p><input type="file" name ="document" accept=".csv"></p>
+                                            </div>
+                                        </div>
+                                        <div class = "form-group">
+{#                                            <p><button type = "submit" href={% url 'step2' %}>Upload file</button></p>#}
+                                                 <button class="btn btn-primary"> <span class="glyphicon glyphicon-upload" style="margin-right:5px;"></span>Upload </button>
+                                        </div>
                                     </form>
-                                    {% if url %}
-                                    <p>Uploaded file: <a href="{{ url }}">{{ url }}</a></p>
-                                    {% endif %}
+{#                                    {% if url %}#}
+{#                                    <p>Uploaded file: <a href="{{ url }}">{{ url }}</a></p>#}
+{#                                    {% endif %}#}
                                     <a class="btn-get-started scrollto big" href={% url 'step2' %} >Continue</a>
                                 </div>
                             </div>
