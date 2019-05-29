@@ -1,6 +1,6 @@
 from typing import TextIO, List, Any
 from django import forms
-from django.shortcuts import render, render_to_response, HttpResponse
+from django.shortcuts import render, render_to_response, redirect, HttpResponse
 from bokeh.plotting import figure, output_file, show
 from bokeh.embed import components
 import csv
@@ -13,6 +13,8 @@ from bokeh.models.graphs import from_networkx, NodesAndLinkedEdges, EdgesAndLink
 from bokeh.palettes import *
 from django.views.generic import TemplateView
 from django.core.files.storage import FileSystemStorage
+from .forms import DataForm
+from .models import Data
 
 
 # Create your views here.
@@ -62,7 +64,6 @@ def coauthorship(request):
 
 
 def weightedgraph(request):
-
     name = 'Ken_Pier'
 
     df = pd.read_csv('GephiMatrix_author_similarity.csv', sep=';')
@@ -91,7 +92,7 @@ def weightedgraph(request):
     alpha = []
     alpha_hover = []
     width = []
-    names =[]
+    names = []
     edgeName = []
     line_color = []
 
@@ -114,7 +115,7 @@ def weightedgraph(request):
             numberOfNodes += 1
             line_color.append('#FF0000')
 
-    #source = ColumnDataSource(pd.DataFrame.from_dict({k:v for k,v in G.nodes(data=True)}, orient='index'))
+    # source = ColumnDataSource(pd.DataFrame.from_dict({k:v for k,v in G.nodes(data=True)}, orient='index'))
 
     nodeSource = ColumnDataSource(data=dict(
         size=node_sizes,
@@ -158,7 +159,6 @@ def weightedgraph(request):
     return render_to_response('pages/visualization2.html', dict(script=script, div=div))
 
 
-
 def faq(request):
     return render(request, 'pages/FAQ.html')
 
@@ -177,6 +177,32 @@ def loadData(request):
     return render(request, 'pages/loadData.html')
 
 
+def data_list(request):
+    datasets = Data.objects.all()
+    return render(request, 'pages/data_list.html', {
+        'datasets': datasets
+    })
+
+
+def upload_data(request):
+    if request.method == 'POST':
+        form = DataForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('data_list')
+    else:
+        form = DataForm()
+    return render(request, 'pages/upload_data.html', {
+        'form': form
+    })
+
+
+def delete_data(request, pk):
+    if request.method == 'POST':
+        data = Data.objects.get(pk=pk)
+        data.delete()
+    return redirect('data_list')
+
 def step1(request):
     return render(request, 'pages/step1.html')
 
@@ -186,9 +212,9 @@ def step2(request):
 
 
 def adjacencymatrix(request):
-    #df = pd.read_csv('application/dataSet/GephiMatrix_author_similarity.csv', sep=';')
+    # df = pd.read_csv('application/dataSet/GephiMatrix_author_similarity.csv', sep=';')
     df = pd.read_csv('application/dataSet/authors.csv', sep=';')
-    #df = pd.read_csv('application/dataSet/authors_2.csv', sep=';')
+    # df = pd.read_csv('application/dataSet/authors_2.csv', sep=';')
     nArr = df.index.values
     dfArr = df.values
 
@@ -218,7 +244,6 @@ def adjacencymatrix(request):
                             arrayi.append(q)
                             arrayj.append(l)
 
-
     for j in arrayj:
         counts = np.delete(counts, (j), axis=0)
         counts = np.delete(counts, (j), axis=1)
@@ -233,7 +258,7 @@ def adjacencymatrix(request):
         for j, node2 in enumerate(counts):
             xname.append(names[i])
             yname.append(names[j])
-            alpha.append(min(counts[i][j] , 0.6)+ 0.3)
+            alpha.append(min(counts[i][j], 0.6) + 0.3)
             if counts[i][j] == 0:
                 color.append(colormap[0])
             elif counts[i][j] >= 0.5:

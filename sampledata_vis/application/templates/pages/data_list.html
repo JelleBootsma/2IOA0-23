@@ -1,0 +1,125 @@
+{%  load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset = "UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="ÏE-Edge">
+        <meta content="width-device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+
+        <!-- Fonts --->
+        <link href = "https://fonts.googleapis.com/css?family=Open+Sans|Oswald" rel = "stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&subset=latin,cyrillic-ext" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Righteous&display=swap" rel="stylesheet">
+
+        <!-- Bootstrap core Css -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.0/css/bootstrap.min.css" integrity="sha384-PDle/QlgIONtM1aqA2Qemk5gPOE7wFq8+Em+G/hmo5Iq0CCmYZLv3fVRDJ4MMwEA" crossorigin="anonymous">
+
+        <!-- Main css -->
+        <link rel = "stylesheet" type = "text/css" href = "{% static 'css/main.css' %}">
+
+        <!--Javascript -->
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.0/js/bootstrap.min.js" integrity="sha384–7aThvCh9TypR7fIc2HV4O/nFMVCBwyIUKL8XCtKE+8xgCgl/PQGuFsvShjr74PBp" crossorigin="anonymous"></script>
+
+
+        <link href="http://cdn.pydata.org/bokeh/release/bokeh-1.1.0.min.css" rel=”stylesheet” type=”text/css”>
+        <link href="http://cdn.pydata.org/bokeh/release/bokeh-widgets-1.1.0.min.css" rel=”stylesheet” type=”text/css”>
+
+        <script src="http://cdn.pydata.org/bokeh/release/bokeh-1.1.0.min.js"></script>
+        <script src="http://cdn.pydata.org/bokeh/release/bokeh-widgets-1.1.0.min.js"></script>
+        {{ script | safe }}
+        <title>Load Data</title>
+
+    </head>
+    <body>
+        <nav class="navbar navbar-dark navbar-expand-sm" style="background-color: #285e8e">
+            <ul class="navbar-nav mr-auto">
+
+                <li class ="nav-item active">
+                    <a class="nav-link visfont" href="{% url 'home' %}">Visify</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href={% url 'data' %}>Datasets</a>
+                </li>
+
+                <!-- Dropdown -->
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
+                        Visualizations
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href={% url 'vis1' %}>Grouped node-link diagram</a>
+                        <a class="dropdown-item" href={% url 'vis2' %}>Radial node-link diagram</a>
+                        <a class="dropdown-item" href={% url 'vis3' %}>Adjacency Matrix</a>
+                    </div>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href={% url 'faq' %}>FAQ</a>
+                </li>
+
+            </ul>
+
+
+        </nav>
+
+                <!-- Main Content -->
+        <section id="intro">
+            <div class = "intro-container">
+                        <div class="carousel-item active">
+                            <div class = "carousel-container">
+                                <div class = "carousel-content">
+                                    <h2 class = "visfont"> Data list </h2>
+
+                                    <p>
+                                        <a href = "{%  url 'upload_data' %}" class = "btn btn-primary">Upload a data set</a>
+                                    </p>
+                                    <table class="table whitefont">
+                                        <thead>
+                                            <tr>
+                                                <th>Title</th>
+                                                <th>Type</th>
+                                                <th>Visualize</th>
+                                                <th>Delete</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for data in datasets %}
+                                                <tr>
+                                                <td>{{ data.title }}</td>
+                                                <td>{{ data.type }}</td>
+                                                <td>
+                                                    <a href="{% url 'step2' %}" class = "btn btn-primary btn-sm">
+                                                        Select
+                                                    </a>
+                                                </td>
+                                                <td>
+{#                                                    {% if data._order == 1 %}#}
+{#                                                        <p>Uploaded file: <a href="{{ data.title }}"></a></p>#}
+{#                                                    {% endif %}#}
+{#                                                    {% if url != GephiMatrix_author_similarity.csv or GephiMatrix_co-authorship.csv or GephiMatrix_co-citation.csv%}#}
+                                                        <form method="post" action="{% url 'delete_data' data.pk %}">
+                                                            {% csrf_token %}
+                                                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                                        </form>
+                                                </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+{#                                    <a class="btn-get-started scrollto big" href={% url 'step2' %} >Continue</a>#}
+                                </div>
+                            </div>
+                </div>
+            </div>
+        </section>
+
+
+            </div>
+        </div>
+    </body>
+</html>
