@@ -8,8 +8,9 @@ import time
 import pandas as pd
 import numpy as np
 import networkx as nx
-from bokeh.models import Plot, Range1d, MultiLine, Circle, HoverTool, TapTool, BoxSelectTool, ColumnDataSource
+from bokeh.models import Plot, Range1d, MultiLine, Circle, HoverTool, TapTool, BoxSelectTool, ColumnDataSource, LinearColorMapper
 from bokeh.models.graphs import from_networkx, NodesAndLinkedEdges, EdgesAndLinkedNodes
+from bokeh.models.widgets import Tabs, Panel
 from bokeh.palettes import *
 from django.views.generic import TemplateView
 from django.core.files.storage import FileSystemStorage
@@ -229,7 +230,6 @@ def adjacencymatrix(request):
             counts[j, i] = nodes[j][i]
     colormap = ["#FDFEFE", "#FCF3CF", "#F9E79F", "#F4D03F", "#F39C12", "#E67E22",
                 "#D35400", "#CB4335", "#C0392B", "#7B241C", "#4A235A"]
-
     arrayi = []
     arrayj = []
     for i in names:
@@ -311,10 +311,15 @@ def adjacencymatrix(request):
     p.axis.major_label_standoff = 1
     p.xaxis.major_label_orientation = np.pi / 3
 
+    tab1 = Panel(child=p, title="default")
+    tab2 = Panel(child=p, title="hierarchical")
+
+    tabs = Tabs(tabs=[tab1, tab2])
+
     p.rect('xname', 'yname', 0.9, 0.9, source=data,
            color='colors', alpha='alphas', line_color='#85929E',
            hover_line_color='black', hover_color='colors')
 
     # store comments
-    script, div = components(p)
+    script, div = components(tabs)
     return render_to_response('pages/visualization1.html', dict(script=script, div=div))
