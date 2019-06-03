@@ -292,4 +292,4 @@ def adjacencymatrix(request):
 
     # store comments
     script, div = components(p)
-    return render_to_response('pages/visualization1.html', dict(script=script, div=div))
+    return render_to_response('pages/visualization3.html', dict(script=script, div=div))
