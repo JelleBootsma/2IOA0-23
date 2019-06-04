@@ -25,6 +25,11 @@ a{
 
 .visfont{
   font-family: 'Righteous', cursive;
+  color: #ffffff;
+}
+
+.whitefont{
+  color: #ffffff;
 }
 
 .visify{
