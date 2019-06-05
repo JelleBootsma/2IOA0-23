@@ -144,13 +144,6 @@ def Adjacent(doc):
     doc.add_root(column(tabs))
 
 def Weighted(doc):
-    args = doc.session_context.request.arguments
-
-    try:
-        N = int(args.get('N')[0])
-    except:
-        N = 420/0
-
 
 
     name = 'Ken_Pier'
