@@ -321,10 +321,7 @@ def adjacencymatrix(request):
            hover_line_color='black', hover_color='colors')
 
     # store comments
-<<<<<<< HEAD
-    script, div = components(p)
-    return render_to_response('pages/visualization3.html', dict(script=script, div=div))
-=======
+
     script, div = components(tabs)
-    return render_to_response('pages/visualization1.html', dict(script=script, div=div))
->>>>>>> c9c045b3be39e7b089835f2fb1164b648b2cb3d8
+    return render_to_response('pages/visualization3.html', dict(script=script, div=div))
+
