@@ -247,8 +247,21 @@ def adjacencymatrix(request):
     for j in arrayj:
         counts = np.delete(counts, (j), axis=0)
         counts = np.delete(counts, (j), axis=1)
-    print(len(names))
-    print(len(counts))
+
+    #Trying to reorder alphabetically
+    ####################################
+    namesOrdered = sorted(names)
+    nodesOrdered = counts
+    for name in names:
+        for n in range(0,len(names)):
+            index = np.where(names == name)
+            print("index", index)
+            index_2 = np.where(namesOrdered == name)
+            print("index_2", index_2)
+            nodesOrdered[n][index_2] = counts[n][index]
+    names = namesOrdered
+    counts = nodesOrdered
+    #####################################
 
     xname = []
     yname = []
@@ -321,10 +334,10 @@ def adjacencymatrix(request):
            hover_line_color='black', hover_color='colors')
 
     # store comments
-<<<<<<< HEAD
+#<<<<<<< HEAD
     script, div = components(p)
     return render_to_response('pages/visualization3.html', dict(script=script, div=div))
-=======
+#=======
     script, div = components(tabs)
     return render_to_response('pages/visualization1.html', dict(script=script, div=div))
->>>>>>> c9c045b3be39e7b089835f2fb1164b648b2cb3d8
+#>>>>>>> c9c045b3be39e7b089835f2fb1164b648b2cb3d8
