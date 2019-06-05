@@ -250,21 +250,24 @@ def adjacencymatrix(request):
 
     #Reorder alphabetically
     ####################################
-    namesOrdered = np.array(sorted(names))
-    N = len(namesOrdered)
-    nodesOrdered = np.zeros((N, N))
-    index_x_2 = 0
-    index_y_2 = 0
-    for name_x in namesOrdered:
-        for name_y in namesOrdered:
-            index_y = np.where(names == name_y)
-            index_x = np.where(names == name_x)
-            nodesOrdered[index_x_2][index_y_2] = counts[index_x[0][0]][index_y[0][0]]
-            index_y_2 = index_y_2 + 1
+    alphabetical = "yes"
+
+    if alphabetical == "yes":
+        namesOrdered = np.array(sorted(names))
+        N = len(namesOrdered)
+        nodesOrdered = np.zeros((N, N))
+        index_x_2 = 0
         index_y_2 = 0
-        index_x_2 = index_x_2 + 1
-    names = namesOrdered
-    counts = nodesOrdered
+        for name_x in namesOrdered:
+            for name_y in namesOrdered:
+                index_y = np.where(names == name_y)
+                index_x = np.where(names == name_x)
+                nodesOrdered[index_x_2][index_y_2] = counts[index_x[0][0]][index_y[0][0]]
+                index_y_2 = index_y_2 + 1
+            index_y_2 = 0
+            index_x_2 = index_x_2 + 1
+        names = namesOrdered
+        counts = nodesOrdered
     #####################################
 
     xname = []
@@ -330,8 +333,9 @@ def adjacencymatrix(request):
 
     tab1 = Panel(child=p, title="default")
     tab2 = Panel(child=p, title="hierarchical")
+    tab3 = Panel(child=p, title="alphabetical")
 
-    tabs = Tabs(tabs=[tab1, tab2])
+    tabs = Tabs(tabs=[tab1, tab2, tab3])
 
     p.rect('xname', 'yname', 0.9, 0.9, source=data,
            color='colors', alpha='alphas', line_color='#85929E',
