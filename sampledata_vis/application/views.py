@@ -30,6 +30,8 @@ from bokeh.palettes import BuPu
 import matplotlib.cm as cm
 import matplotlib as mpl
 from matplotlib import colors
+import holoviews as hv #There is a reason we have to do this here but its not important. Holoviews is the next library
+hv.extension('bokeh')
 
 
 # Create your views here.
