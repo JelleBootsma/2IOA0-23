@@ -16,6 +16,20 @@ from django.views.generic import TemplateView
 from django.core.files.storage import FileSystemStorage
 from .forms import DataForm
 from .models import Data
+from bokeh.models import (
+    ColumnDataSource,
+    HoverTool,
+    LinearColorMapper,
+    BasicTicker,
+    PrintfTickFormatter,
+    ColorBar,
+    FactorRange
+)
+from bokeh.plotting import figure
+from bokeh.palettes import BuPu
+import matplotlib.cm as cm
+import matplotlib as mpl
+from matplotlib import colors
 
 
 # Create your views here.
@@ -213,7 +227,7 @@ def step2(request):
 
 
 def adjacencymatrix(request):
-    # df = pd.read_csv('application/dataSet/GephiMatrix_author_similarity.csv', sep=';')
+    #df = pd.read_csv('application/dataSet/GephiMatrix_author_similarity.csv', sep=';')
     df = pd.read_csv('application/dataSet/authors.csv', sep=';')
     #df = pd.read_csv('application/dataSet/authors_2.csv', sep=';')
     nArr = df.index.values
@@ -230,6 +244,9 @@ def adjacencymatrix(request):
             counts[j, i] = nodes[j][i]
     colormap = ["#FDFEFE", "#FCF3CF", "#F9E79F", "#F4D03F", "#F39C12", "#E67E22",
                 "#D35400", "#CB4335", "#C0392B", "#7B241C", "#4A235A"]
+
+    #Deleting duplicates
+    #########################################################
     arrayi = []
     arrayj = []
     for i in names:
@@ -247,29 +264,38 @@ def adjacencymatrix(request):
     for j in arrayj:
         counts = np.delete(counts, (j), axis=0)
         counts = np.delete(counts, (j), axis=1)
+    #########################################################
+
+
+    #If data too large
+    #########################################################
+    if len(names) > 50:
+        n = 50
+        while len(names) != 50:
+            names = np.delete(names, (n))
+            counts = np.delete(counts, (n), axis=0)
+            counts = np.delete(counts, (n), axis=1)
 
     #Reorder alphabetically
-    ####################################
-    alphabetical = "yes"
+    ########################################################
 
-    if alphabetical == "yes":
-        namesOrdered = np.array(sorted(names))
-        N = len(namesOrdered)
-        nodesOrdered = np.zeros((N, N))
-        index_x_2 = 0
+    namesOrdered = np.array(sorted(names))
+    N = len(namesOrdered)
+    nodesOrdered = np.zeros((N, N))
+    index_x_2 = 0
+    index_y_2 = 0
+    for name_x in namesOrdered:
+        for name_y in namesOrdered:
+            index_y = np.where(names == name_y)
+            index_x = np.where(names == name_x)
+            nodesOrdered[index_x_2][index_y_2] = counts[index_x[0][0]][index_y[0][0]]
+            index_y_2 = index_y_2 + 1
         index_y_2 = 0
-        for name_x in namesOrdered:
-            for name_y in namesOrdered:
-                index_y = np.where(names == name_y)
-                index_x = np.where(names == name_x)
-                nodesOrdered[index_x_2][index_y_2] = counts[index_x[0][0]][index_y[0][0]]
-                index_y_2 = index_y_2 + 1
-            index_y_2 = 0
-            index_x_2 = index_x_2 + 1
-        names = namesOrdered
-        counts = nodesOrdered
-    #####################################
+        index_x_2 = index_x_2 + 1
+    #########################################################
 
+    #Establishing all the values
+    #######################################################
     xname = []
     yname = []
     color = []
@@ -312,12 +338,75 @@ def adjacencymatrix(request):
                         color.append(colormap[4])
                 else:
                     color.append(colormap[4])
+
+    xname_2 = []
+    yname_2 = []
+    color_2 = []
+    alpha_2 = []
+    for i, node1 in enumerate(nodesOrdered):
+        for j, node2 in enumerate(nodesOrdered):
+            xname_2.append(namesOrdered[i])
+            yname_2.append(namesOrdered[j])
+            alpha_2.append(min(nodesOrdered[i][j], 0.6) + 0.3)
+            if nodesOrdered[i][j] == 0:
+                color_2.append(colormap[0])
+            elif nodesOrdered[i][j] >= 0.5:
+                if nodesOrdered[i][j] > 0.6:
+                    if nodesOrdered[i][j] > 0.7:
+                        if nodesOrdered[i][j] > 0.8:
+                            if nodesOrdered[i][j] > 0.9:
+                                if nodesOrdered[i][j] == 1.0:
+                                    color_2.append(colormap[10])
+                                else:
+                                    color_2.append(colormap[9])
+                            else:
+                                color_2.append(colormap[8])
+                        else:
+                            color_2.append(colormap[7])
+                    else:
+                        color_2.append(colormap[6])
+                else:
+                    color_2.append(colormap[5])
+            else:
+                if nodesOrdered[i][j] < 0.4:
+                    if nodesOrdered[i][j] < 0.3:
+                        if nodesOrdered[i][j] < 0.2:
+                            if nodesOrdered[i][j] < 0.1:
+                                color_2.append(colormap[1])
+                            else:
+                                color_2.append(colormap[2])
+                        else:
+                            color_2.append(colormap[3])
+                    else:
+                        color_2.append(colormap[4])
+                else:
+                    color_2.append(colormap[4])
+    #######################################################
+
+    #Color map to show with large data set
+    #######################################################
+    # for n in range(0,len(counts)* len(counts)):
+    #     color.append(colormap[1])
+    ######################################################
+
+    #Creating a color map
+    #######################################################
+    colormap = cm.get_cmap("BuPu")
+    bokehpalette = [mpl.colors.rgb2hex(m) for m in colormap(np.arange(colormap.N))]
+    mapper = LinearColorMapper(palette=bokehpalette, low=counts.min().min(), high=counts.max().max())
+    ######################################################
+
     data = dict(
         xname=xname,
         yname=yname,
         colors=color,
         alphas=alpha,
         count=counts.flatten(),
+        xname_2=xname_2,
+        yname_2=yname_2,
+        colors_2=color_2,
+        alphas_2=alpha_2,
+        count_2=nodesOrdered.flatten()
     )
     p = figure(x_axis_location="above", tools="hover,save,wheel_zoom,box_zoom,reset",
                y_range=list(reversed(names)), x_range=names,
@@ -331,15 +420,31 @@ def adjacencymatrix(request):
     p.axis.major_label_standoff = 1
     p.xaxis.major_label_orientation = np.pi / 3
 
+    p2 = figure(x_axis_location="above", tools="hover,save,wheel_zoom,box_zoom,reset",
+               y_range=list(reversed(namesOrdered)), x_range=namesOrdered,
+               tooltips=[('names', '@yname, @xname'), ('count', '@count_2')])
+    p2.plot_width = 800
+    p2.plot_height = 800
+    p2.grid.grid_line_color = None
+    p2.axis.axis_line_color = None
+    p2.axis.major_tick_line_color = None
+    p2.axis.major_label_text_font_size = "8pt"
+    p2.axis.major_label_standoff = 1
+    p2.xaxis.major_label_orientation = np.pi / 3
+
     tab1 = Panel(child=p, title="default")
     tab2 = Panel(child=p, title="hierarchical")
-    tab3 = Panel(child=p, title="alphabetical")
+    tab3 = Panel(child=p2, title="alphabetical")
 
     tabs = Tabs(tabs=[tab1, tab2, tab3])
 
     p.rect('xname', 'yname', 0.9, 0.9, source=data,
            color='colors', alpha='alphas', line_color='#85929E',
            hover_line_color='black', hover_color='colors')
+
+    p2.rect('xname_2', 'yname_2', 0.9, 0.9, source=data,
+           fill_color={'field': 'xname', 'transform':mapper}, alpha='alphas_2', line_color='#85929E',
+           hover_line_color='black', hover_color='colors_2')
 
     # store comments
 
