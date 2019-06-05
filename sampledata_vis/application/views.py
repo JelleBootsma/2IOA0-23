@@ -215,7 +215,7 @@ def step2(request):
 def adjacencymatrix(request):
     # df = pd.read_csv('application/dataSet/GephiMatrix_author_similarity.csv', sep=';')
     df = pd.read_csv('application/dataSet/authors.csv', sep=';')
-    # df = pd.read_csv('application/dataSet/authors_2.csv', sep=';')
+    #df = pd.read_csv('application/dataSet/authors_2.csv', sep=';')
     nArr = df.index.values
     dfArr = df.values
 
@@ -248,17 +248,21 @@ def adjacencymatrix(request):
         counts = np.delete(counts, (j), axis=0)
         counts = np.delete(counts, (j), axis=1)
 
-    #Trying to reorder alphabetically
+    #Reorder alphabetically
     ####################################
-    namesOrdered = sorted(names)
-    nodesOrdered = counts
-    for name in names:
-        for n in range(0,len(names)):
-            index = np.where(names == name)
-            print("index", index)
-            index_2 = np.where(namesOrdered == name)
-            print("index_2", index_2)
-            nodesOrdered[n][index_2] = counts[n][index]
+    namesOrdered = np.array(sorted(names))
+    N = len(namesOrdered)
+    nodesOrdered = np.zeros((N, N))
+    index_x_2 = 0
+    index_y_2 = 0
+    for name_x in namesOrdered:
+        for name_y in namesOrdered:
+            index_y = np.where(names == name_y)
+            index_x = np.where(names == name_x)
+            nodesOrdered[index_x_2][index_y_2] = counts[index_x[0][0]][index_y[0][0]]
+            index_y_2 = index_y_2 + 1
+        index_y_2 = 0
+        index_x_2 = index_x_2 + 1
     names = namesOrdered
     counts = nodesOrdered
     #####################################
