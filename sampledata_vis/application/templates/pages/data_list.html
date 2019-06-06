@@ -29,6 +29,12 @@
 
         <script src="http://cdn.pydata.org/bokeh/release/bokeh-1.1.0.min.js"></script>
         <script src="http://cdn.pydata.org/bokeh/release/bokeh-widgets-1.1.0.min.js"></script>
+        
+        <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+        <script>function setCookie(location) {
+            Cookies.set('Data', location);
+            
+        }</script>
         {{ script | safe }}
         <title>Load Data</title>
 
@@ -91,11 +97,12 @@
                                             {% for data in datasets %}
                                                 <tr>
                                                 <td>{{ data.title }}</td>
-                                                <td>{{ data.type }}</td>
+                                                <td>{{ data.CSV}}</td>
                                                 <td>
-                                                    <a href="{% url 'step2' %}" class = "btn btn-primary btn-sm">
-                                                        Select
-                                                    </a>
+                                                    <form>
+                                                        <button onclick="setCookie('{{ data.CSV }}')" class="btn btn-primary btn-sm">Select</button>
+                                                    </form>
+                                                </td>
                                                 </td>
                                                 <td>
 {#                                                    {% if data._order == 1 %}#}
