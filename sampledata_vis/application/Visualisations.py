@@ -54,8 +54,6 @@ def Adjacent(doc):
         for j in range(0, len(nodes)):
             counts[i, j] = nodes[j][i]
             counts[j, i] = nodes[j][i]
-    colormap = ["#FDFEFE", "#FCF3CF", "#F9E79F", "#F4D03F", "#F39C12", "#E67E22",
-                "#D35400", "#CB4335", "#C0392B", "#7B241C", "#4A235A"]
 
     # Deleting duplicates
     #########################################################
@@ -80,67 +78,68 @@ def Adjacent(doc):
 
     # If data too large
     #########################################################
-    if len(names) > 50:
-        n = 50
-        while len(names) != 50:
+    if len(names) > 150:
+        n = 150
+        while len(names) != 150:
             names = np.delete(names, (n))
             counts = np.delete(counts, (n), axis=0)
             counts = np.delete(counts, (n), axis=1)
 
     # Reorder alphabetically
     ########################################################
-
-    namesOrdered = np.array(sorted(names))
-    N = len(namesOrdered)
-    nodesOrdered = np.zeros((N, N))
+    namesAlph = np.array(sorted(names))
+    N = len(namesAlph)
+    nodesAlph = np.zeros((N, N))
     index_x_2 = 0
     index_y_2 = 0
-    for name_x in namesOrdered:
-        for name_y in namesOrdered:
+    for name_x in namesAlph:
+        for name_y in namesAlph:
             index_y = np.where(names == name_y)
             index_x = np.where(names == name_x)
-            nodesOrdered[index_x_2][index_y_2] = counts[index_x[0][0]][index_y[0][0]]
+            nodesAlph[index_x_2][index_y_2] = counts[index_x[0][0]][index_y[0][0]]
             index_y_2 = index_y_2 + 1
         index_y_2 = 0
         index_x_2 = index_x_2 + 1
     #########################################################
 
+    # Reorder increasingly
+    ########################################################
+    namesInc = [] #have to do at the end
+    nodesInc = np.zeros((N, N))
+    distanceM = np.zeros((N, N))
+    count = 0
+    for node in counts:
+        distanceM[count] = node
+        count = count + 1
+
+    ########################################################
+
+
+
     # Establishing all the values
     #######################################################
     xname = []
     yname = []
-    color = []
     alpha = []
     for i, node1 in enumerate(counts):
         for j, node2 in enumerate(counts):
             xname.append(names[i])
             yname.append(names[j])
             alpha.append(min(counts[i][j], 0.6) + 0.3)
-
-
     xname_2 = []
     yname_2 = []
-    color_2 = []
     alpha_2 = []
-    for i, node1 in enumerate(nodesOrdered):
-        for j, node2 in enumerate(nodesOrdered):
-            xname_2.append(namesOrdered[i])
-            yname_2.append(namesOrdered[j])
-            alpha_2.append(min(nodesOrdered[i][j], 0.6) + 0.3)
+    for i, node1 in enumerate(nodesAlph):
+        for j, node2 in enumerate(nodesAlph):
+            xname_2.append(namesAlph[i])
+            yname_2.append(namesAlph[j])
+            alpha_2.append(min(nodesAlph[i][j], 0.6) + 0.3)
 
     #######################################################
-
-    # Color map to show with large data set
-    #######################################################
-    # for n in range(0,len(counts)* len(counts)):
-    #     color.append(colormap[1])
-    ######################################################
 
     # Creating a color map
     #######################################################
-
     map = cm.get_cmap("BuPu")
-    # colormap = cm.get_cmap("PiYG")
     bokehpalette = [mpl.colors.rgb2hex(m) for m in map(np.arange(map.N))]
     mapper = LinearColorMapper(palette=bokehpalette, low=counts.min().min(), high=counts.max().max())
     ######################################################
@@ -148,15 +147,16 @@ def Adjacent(doc):
     data = dict(
         xname=xname,
         yname=yname,
-        #colors=color,
         alphas=alpha,
         count=counts.flatten(),
         xname_2=xname_2,
         yname_2=yname_2,
-        #colors_2=color_2,
         alphas_2=alpha_2,
-        count_2=nodesOrdered.flatten()
+        count_2=nodesAlph.flatten()
     )
+
+    # Plot -- default
+    #######################################################
     p = figure(x_axis_location="above", tools="hover,save,wheel_zoom,box_zoom,reset",
                y_range=list(reversed(names)), x_range=names,
                tooltips=[('names', '@yname, @xname'), ('count', '@count')])
@@ -169,8 +169,10 @@ def Adjacent(doc):
     p.axis.major_label_standoff = 1
     p.xaxis.major_label_orientation = np.pi / 3
 
+    # Plot -- alphabetical
+    #######################################################
     p2 = figure(x_axis_location="above", tools="hover,save,wheel_zoom,box_zoom,reset",
-                y_range=list(reversed(namesOrdered)), x_range=namesOrdered,
+                y_range=list(reversed(namesAlph)), x_range=namesAlph,
                 tooltips=[('names', '@yname_2, @xname_2'), ('count_2', '@count_2')])
     p2.plot_width = 800
     p2.plot_height = 800
@@ -189,11 +191,18 @@ def Adjacent(doc):
 
     p.rect('xname', 'yname', 0.9, 0.9, source=data,
            color=transform('count', mapper), alpha='alphas', line_color='#85929E',
-           hover_line_color='black') # hover_color='colors')
+           hover_line_color='black', hover_color='black')
 
     p2.rect('xname_2', 'yname_2', 0.9, 0.9, source=data,
             fill_color=transform('count_2', mapper), alpha='alphas_2', line_color='#85929E',
-            hover_line_color='black')  # , hover_color='colors_2')
+            hover_line_color='black' , hover_color='black')
+
+    color_bar = ColorBar(color_mapper=mapper, major_label_text_font_size="10pt",
+                         ticker=BasicTicker(desired_num_ticks=1),
+                         formatter=PrintfTickFormatter(format="%d"),
+                         label_standoff=6, border_line_color=None, location=(0, 0))
+    p.add_layout(color_bar, 'right')
+    p2.add_layout(color_bar, 'right')
 
     doc.add_root(column(tabs))
 
