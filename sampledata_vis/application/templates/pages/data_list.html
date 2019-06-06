@@ -97,7 +97,7 @@
                                             {% for data in datasets %}
                                                 <tr>
                                                 <td>{{ data.title }}</td>
-                                                <td>{{ data.CSV}}</td>
+                                                <td>{{ data.type}}</td>
                                                 <td>
                                                     <form>
                                                         <button onclick="setCookie('{{ data.CSV }}')" class="btn btn-primary btn-sm">Select</button>
