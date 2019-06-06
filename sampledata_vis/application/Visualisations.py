@@ -293,7 +293,14 @@ def Weighted(doc):
 
 
 def Grouped(doc):
-    with open("application/dataSet/GephiMatrix_co-authorship.csv") as data:
+
+    args = doc.session_context.request.arguments
+    print(args)
+    file = args.get('bokeh-absolute-url')[0]
+    file = str(file.decode('UTF-8'))
+    file = file.split('?file=')[1]
+
+    with open("media/" + file) as data:
         start = time.time()
         csv_reader = csv.reader(data, delimiter=';')
         processedData = list(csv_reader)

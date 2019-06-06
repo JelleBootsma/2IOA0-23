@@ -25,15 +25,16 @@ def homepage(request):
 
 
 def coauthorship(request):
-
+    fileLocation = request.COOKIES['Data']
 
     # store comments
-    script = server_document('http://localhost:5006/Grouped')
+    script = server_document('http://localhost:5006/Grouped?file=' + fileLocation)
     return render_to_response('pages/visualization1.html', dict(script=script))
 
 
 def weightedgraph(request):
 
+    fileLocation = request.COOKIES['data']
     # store comments
     script = server_document('http://localhost:5006/Weighted')
     return render_to_response('pages/visualization2.html', dict(script=script))

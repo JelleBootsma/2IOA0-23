@@ -33,6 +33,7 @@
         <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
         <script>function setCookie(location) {
             Cookies.set('Data', location);
+            window.location.href = '/step2';
             
         }</script>
         {{ script | safe }}
@@ -99,9 +100,7 @@
                                                 <td>{{ data.title }}</td>
                                                 <td>{{ data.type}}</td>
                                                 <td>
-                                                    <form>
                                                         <button onclick="setCookie('{{ data.CSV }}')" class="btn btn-primary btn-sm">Select</button>
-                                                    </form>
                                                 </td>
                                                 </td>
                                                 <td>
