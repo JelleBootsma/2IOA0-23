@@ -305,12 +305,10 @@ def Grouped(doc):
 
     args = doc.session_context.request.arguments
     print(args)
-    file = args.get('bokeh-absolute-url')[0]
+    file = args.get('file')[0]
     file = str(file.decode('UTF-8'))
-    file = file.split('?file=')[1]
 
     with open("media/" + file) as data:
-        start = time.time()
         csv_reader = csv.reader(data, delimiter=';')
         processedData = list(csv_reader)
         header = processedData[0]
@@ -327,7 +325,7 @@ def Grouped(doc):
                     pass
 
         TOOLTIPS = [
-            ("index", "@index")]
+            ("Name", "@index")]
         plot = figure(title="", x_range=(-1.1, 1.1), y_range=(-1.1, 1.1),
                       tooltips=TOOLTIPS)
         graph = from_networkx(g, nx.spring_layout, scale=2, center=(0, 0))
@@ -344,6 +342,5 @@ def Grouped(doc):
         graph.inspection_policy = NodesAndLinkedEdges()
         plot.renderers.append(graph)
         doc.add_root(column(plot))
-
 
 
