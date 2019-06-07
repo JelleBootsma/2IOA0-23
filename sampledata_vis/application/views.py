@@ -34,7 +34,7 @@ def coauthorship(request):
 
 def weightedgraph(request):
 
-    fileLocation = request.COOKIES['data']
+    fileLocation = request.COOKIES['Data']
     # store comments
     script = server_document('http://localhost:5006/Weighted')
     return render_to_response('pages/visualization2.html', dict(script=script))
