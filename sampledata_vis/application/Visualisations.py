@@ -39,7 +39,7 @@ from bokeh.layouts import column
 
 
 def Adjacent(doc):
-    # df = pd.read_csv('application/dataSet/GephiMatrix_author_similarity.csv', sep=';')
+    #df = pd.read_csv('application/dataSet/GephiMatrix_author_similarity.csv', sep=';')
     df = pd.read_csv('application/dataSet/authors.csv', sep=';')
     # df = pd.read_csv('application/dataSet/authors_2.csv', sep=';')
     nArr = df.index.values
@@ -78,9 +78,9 @@ def Adjacent(doc):
 
     # If data too large
     #########################################################
-    if len(names) > 150:
-        n = 150
-        while len(names) != 150:
+    if len(names) > 50:
+        n = 50
+        while len(names) != 50:
             names = np.delete(names, (n))
             counts = np.delete(counts, (n), axis=0)
             counts = np.delete(counts, (n), axis=1)
@@ -102,19 +102,54 @@ def Adjacent(doc):
         index_x_2 = index_x_2 + 1
     #########################################################
 
-    # Reorder increasingly
+    # Reorder heirarchy for increasingly and decreasing
     ########################################################
-    namesInc = [] #have to do at the end
-    nodesInc = np.zeros((N, N))
+    N = len(counts)
     distanceM = np.zeros((N, N))
+    distanceM_2 = np.zeros((N, N))
+    distanceM_3 = np.zeros((N, N))
     count = 0
     for node in counts:
         distanceM[count] = node
         count = count + 1
+    namesHeirRow = [""]*len(names)
+    namesHeirColumn =  [""]*len(names)
 
-    ########################################################
+    #SORTING COLUMNS
+    sumsOfRows = []
+    sum = 0
+    index = 0
+    for rows in distanceM:
+        for value in rows:
+            sum = sum + value
+        sumsOfRows.append([sum,index])
+        sum = 0
+        index = index + 1
+    sumsOfRows = sorted(sumsOfRows)
+    index = 0
+    for sum in sumsOfRows:
+        for rows in range(0,len(distanceM)):
+            distanceM_2[rows][index] = distanceM[rows][sum[1]]
+            namesHeirColumn[index] = names[sum[1]]
+        index = index + 1
 
-
+    #SORTING ROWS
+    sumsOfRows = []
+    sum = 0
+    index = 0
+    for rows in distanceM_2:
+        for value in rows:
+            sum = sum + value
+        sumsOfRows.append([sum, index])
+        sum = 0
+        index = index + 1
+    sumsOfRows = sorted(sumsOfRows)
+    index = 0
+    for sum in sumsOfRows:
+        distanceM_3[index] = distanceM_2[sum[1]]
+        namesHeirRow[index] = names[sum[1]]
+        index = index + 1
+    #######################################################
 
     # Establishing all the values
     #######################################################
@@ -134,7 +169,14 @@ def Adjacent(doc):
             xname_2.append(namesAlph[i])
             yname_2.append(namesAlph[j])
             alpha_2.append(min(nodesAlph[i][j], 0.6) + 0.3)
-
+    xname_3 = []
+    yname_3 = []
+    alpha_3 = []
+    for i, node1 in enumerate(distanceM_3):
+        for j, node2 in enumerate(distanceM_3):
+            xname_3.append(namesHeirColumn[i])
+            yname_3.append(namesHeirRow[j])
+            alpha_3.append(min(distanceM_3[i][j], 0.6) + 0.3)
     #######################################################
 
     # Creating a color map
@@ -152,7 +194,11 @@ def Adjacent(doc):
         xname_2=xname_2,
         yname_2=yname_2,
         alphas_2=alpha_2,
-        count_2=nodesAlph.flatten()
+        count_2=nodesAlph.flatten(),
+        xname_3=xname_3,
+        yname_3=yname_3,
+        alphas_3=alpha_3,
+        count_3 = distanceM_3.flatten()
     )
 
     # Plot -- default
@@ -182,12 +228,44 @@ def Adjacent(doc):
     p2.axis.major_label_text_font_size = "8pt"
     p2.axis.major_label_standoff = 1
     p2.xaxis.major_label_orientation = np.pi / 3
+    #######################################################
+
+    # Plot -- heirarchy -- increasing
+    #######################################################
+    p3 = figure(x_axis_location="above", tools="hover,save,wheel_zoom,box_zoom,reset",
+                y_range=list(reversed(namesHeirRow)), x_range=namesHeirColumn,
+                tooltips=[('names', '@yname_3, @xname_3'), ('count_3', '@count_3')])
+    p3.plot_width = 800
+    p3.plot_height = 800
+    p3.grid.grid_line_color = None
+    p3.axis.axis_line_color = None
+    p3.axis.major_tick_line_color = None
+    p3.axis.major_label_text_font_size = "8pt"
+    p3.axis.major_label_standoff = 1
+    p3.xaxis.major_label_orientation = np.pi / 3
+    #######################################################
+
+    # Plot -- heirarchy -- decreasing
+    #######################################################
+    p4 = figure(x_axis_location="above", tools="hover,save,wheel_zoom,box_zoom,reset",
+                y_range=namesHeirRow, x_range=list(reversed(namesHeirColumn)),
+                tooltips=[('names', '@yname_3, @xname_3'), ('count_3', '@count_3')])
+    p4.plot_width = 800
+    p4.plot_height = 800
+    p4.grid.grid_line_color = None
+    p4.axis.axis_line_color = None
+    p4.axis.major_tick_line_color = None
+    p4.axis.major_label_text_font_size = "8pt"
+    p4.axis.major_label_standoff = 1
+    p4.xaxis.major_label_orientation = np.pi / 3
+    #######################################################
 
     tab1 = Panel(child=p, title="default")
-    tab2 = Panel(child=p, title="hierarchical")
-    tab3 = Panel(child=p2, title="alphabetical")
+    tab2 = Panel(child=p2, title="alphabetical")
+    tab3 = Panel(child=p3, title="increasing")
+    tab4 = Panel(child=p4, title="decreasing")
 
-    tabs = Tabs(tabs=[tab1, tab2, tab3])
+    tabs = Tabs(tabs=[tab1, tab2, tab3, tab4])
 
     p.rect('xname', 'yname', 0.9, 0.9, source=data,
            color=transform('count', mapper), alpha='alphas', line_color='#85929E',
@@ -197,12 +275,22 @@ def Adjacent(doc):
             fill_color=transform('count_2', mapper), alpha='alphas_2', line_color='#85929E',
             hover_line_color='black' , hover_color='black')
 
+    p3.rect('xname_3', 'yname_3', 0.9, 0.9, source=data,
+            fill_color=transform('count_3', mapper), alpha='alphas_3', line_color='#85929E',
+            hover_line_color='black', hover_color='black')
+
+    p4.rect('xname_3', 'yname_3', 0.9, 0.9, source=data,
+            fill_color=transform('count_3', mapper), alpha='alphas_3', line_color='#85929E',
+            hover_line_color='black', hover_color='black')
+
     color_bar = ColorBar(color_mapper=mapper, major_label_text_font_size="10pt",
                          ticker=BasicTicker(desired_num_ticks=1),
                          formatter=PrintfTickFormatter(format="%d"),
                          label_standoff=6, border_line_color=None, location=(0, 0))
     p.add_layout(color_bar, 'right')
     p2.add_layout(color_bar, 'right')
+    p3.add_layout(color_bar, 'right')
+    p4.add_layout(color_bar, 'right')
 
     doc.add_root(column(tabs))
 
