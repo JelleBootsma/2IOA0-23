@@ -26,9 +26,9 @@ def homepage(request):
 
 def coauthorship(request):
     fileLocation = request.COOKIES['Data']
-
+    #fileLocation = 'data/GephiMatrix.csv'
     # store comments
-    script = server_document('http://localhost:5006/Grouped?file=' + fileLocation)
+    script = server_document('http://localhost:5006/Grouped', arguments={'file' : fileLocation})
     return render_to_response('pages/visualization1.html', dict(script=script))
 
 
