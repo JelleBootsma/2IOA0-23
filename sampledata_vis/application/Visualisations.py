@@ -85,6 +85,23 @@ def Adjacent(doc):
             counts = np.delete(counts, (n), axis=0)
             counts = np.delete(counts, (n), axis=1)
 
+    #Make a distance matrix
+    #######################################################
+    distancematrix = counts
+
+    for m in range(N):
+        for n in range(N):
+            if distancematrix[m][n] == 0:
+                distancematrix[m][n] = float("inf")
+    for l in range(4):
+        distancematrix[l][l] = 0
+
+    for k in range(N):
+        for i in range(N):
+            for j in range(N):
+                if distancematrix[i][j] > distancematrix[i][k] + distancematrix[k][j]:
+                    distancematrix[i][j] = distancematrix[i][k] + distancematrix[k][j]
+
     # Reorder alphabetically
     ########################################################
     namesAlph = np.array(sorted(names))
