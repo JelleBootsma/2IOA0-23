@@ -87,13 +87,18 @@ def Adjacent(doc):
 
     #Make a distance matrix
     #######################################################
-    distancematrix = counts
+    N = len(counts)
+    distancematrix = np.zeros((N, N))
+    count = 0
+    for node_1 in counts:
+        distancematrix[count] = node_1
+        count = count + 1
 
     for m in range(N):
         for n in range(N):
             if distancematrix[m][n] == 0:
                 distancematrix[m][n] = float("inf")
-    for l in range(4):
+    for l in range(N):
         distancematrix[l][l] = 0
 
     for k in range(N):
@@ -126,7 +131,7 @@ def Adjacent(doc):
     distanceM_2 = np.zeros((N, N))
     distanceM_3 = np.zeros((N, N))
     count = 0
-    for node in counts:
+    for node in distancematrix:
         distanceM[count] = node
         count = count + 1
     namesHeirRow = [""]*len(names)
@@ -201,6 +206,7 @@ def Adjacent(doc):
     map = cm.get_cmap("BuPu")
     bokehpalette = [mpl.colors.rgb2hex(m) for m in map(np.arange(map.N))]
     mapper = LinearColorMapper(palette=bokehpalette, low=counts.min().min(), high=counts.max().max())
+    mapper_2 = LinearColorMapper(palette=bokehpalette, low=counts.min().min(), high=(counts.max().max())/3)
     ######################################################
 
     data = dict(
@@ -293,11 +299,11 @@ def Adjacent(doc):
             hover_line_color='black' , hover_color='black')
 
     p3.rect('xname_3', 'yname_3', 0.9, 0.9, source=data,
-            fill_color=transform('count_3', mapper), alpha='alphas_3', line_color='#85929E',
+            fill_color=transform('count_3', mapper_2), alpha='alphas_3', line_color='#85929E',
             hover_line_color='black', hover_color='black')
 
     p4.rect('xname_3', 'yname_3', 0.9, 0.9, source=data,
-            fill_color=transform('count_3', mapper), alpha='alphas_3', line_color='#85929E',
+            fill_color=transform('count_3', mapper_2), alpha='alphas_3', line_color='#85929E',
             hover_line_color='black', hover_color='black')
 
     color_bar = ColorBar(color_mapper=mapper, major_label_text_font_size="10pt",
