@@ -5,6 +5,7 @@ from bokeh.plotting import figure, output_file, show
 from bokeh.embed import components
 import csv
 import time
+import scipy
 import pandas as pd
 import numpy as np
 import networkx as nx
@@ -23,8 +24,7 @@ from bokeh.models import (
     LinearColorMapper,
     BasicTicker,
     PrintfTickFormatter,
-    ColorBar,
-    FactorRange
+    ColorBar
 )
 from bokeh.plotting import figure
 from bokeh.palettes import BuPu
@@ -38,6 +38,10 @@ from bokeh.transform import linear_cmap
 from bokeh.transform import transform
 from bokeh.palettes import Spectral4
 from bokeh.layouts import column
+from scipy.cluster.hierarchy import dendrogram, linkage
+from scipy.spatial.distance import squareform
+from numpy import arange
+from bokehheat import heat
 
 
 def Adjacent(doc):
@@ -473,3 +477,73 @@ def Grouped(doc):
         graph.inspection_policy = NodesAndLinkedEdges()
         plot.renderers.append(graph)
         doc.add_root(column(plot))
+
+
+def Hierarchical(doc):
+    # df = pd.read_csv('application/dataSet/GephiMatrix_author_similarity.csv', sep=';')
+    #csv_reader = pd.read_csv('application/dataSet/authors.csv', sep=';')
+
+    #############################################################
+    # Make a condensed distance matrix
+    ############################################################
+
+    # df_std = (df - df.min(axis=0)) / (df.max(axis=0) - df.min(axis=0))
+    # df_scaled = df_std * (1.0 - 0.0) + 0.0
+    #
+    # dist = scipy.spatial.distance.squareform(distancematrix)
+    # linkage_matrix = linkage(dist, "single")
+    # results = dendrogram(linkage_matrix, no_plot=True)
+    # icoord, dcoord = results['icoord'], results['dcoord']
+    # labels = list(map(int, results['ivl']))
+    # df = df.iloc[labels]
+    # df_scaled = df_scaled.iloc[labels]
+    #
+    # tms = []
+    #
+    #
+    # icoord = pd.DataFrame(icoord)
+
+    args = doc.session_context.request.arguments
+    print(args)
+    file = args.get('file')[0]
+    file = str(file.decode('UTF-8'))
+
+    with open("media/" + file) as data:
+        csv_reader = csv.reader(data, delimiter=';')
+
+        nArr = csv_reader.index.values
+        dfArr = csv_reader.values
+
+        nodes = dfArr
+        names = nArr
+
+        N = len(names)
+        counts = np.zeros((N, N))
+        for i in range(0, len(nodes)):
+            for j in range(0, len(nodes)):
+                counts[i, j] = nodes[j][i]
+                counts[j, i] = nodes[j][i]
+
+        N = len(counts)
+
+        distancematrix = np.zeros((N, N))
+        count = 0
+        for node_1 in counts:
+            distancematrix[count] = node_1
+            count = count + 1
+
+        for m in range(N):
+            for n in range(N):
+                if distancematrix[m][n] == 0:
+                    distancematrix[m][n] = float("inf")
+        for l in range(N):
+            distancematrix[l][l] = 0
+
+        for k in range(N):
+            for i in range(N):
+                for j in range(N):
+                    if distancematrix[i][j] > distancematrix[i][k] + distancematrix[k][j]:
+                        distancematrix[i][j] = distancematrix[i][k] + distancematrix[k][j]
+
+        values = distancematrix
+
