@@ -8,10 +8,10 @@ import time
 import pandas as pd
 import numpy as np
 import networkx as nx
-from bokeh.models import Plot, Range1d, MultiLine, Circle, HoverTool, TapTool, BoxSelectTool, ColumnDataSource, \
+from bokeh.models import Plot, Range1d, MultiLine, GraphRenderer, CustomJS, StaticLayoutProvider, Circle, HoverTool, TapTool, BoxSelectTool, ColumnDataSource, \
     LinearColorMapper
-from bokeh.models.graphs import from_networkx, NodesAndLinkedEdges, EdgesAndLinkedNodes
-from bokeh.models.widgets import Tabs, Panel
+from bokeh.models.graphs import from_networkx, NodesAndLinkedEdges, EdgesAndLinkedNodes, NodesOnly
+from bokeh.models.widgets import Tabs, Panel, Select
 from bokeh.palettes import *
 from django.views.generic import TemplateView
 from django.core.files.storage import FileSystemStorage
@@ -39,10 +39,34 @@ from bokeh.transform import transform
 from bokeh.palettes import Spectral4
 from bokeh.layouts import column
 
+import pandas as pd
+import numpy as np
+
+from bokeh.layouts import row, widgetbox, column
+from bokeh.models import ColumnDataSource, CustomJS, StaticLayoutProvider, Oval, Circle
+from bokeh.models import HoverTool, TapTool, BoxSelectTool, GraphRenderer, MultiLine
+from bokeh.models.widgets import RangeSlider, Button, DataTable, TableColumn, NumberFormatter, Select
+from bokeh.io import curdoc, show, output_notebook
+from bokeh.plotting import figure
+
+import networkx as nx
+
+from bokeh.io import show, output_file
+from bokeh.plotting import figure
+from bokeh.models.graphs import from_networkx, NodesAndLinkedEdges, EdgesAndLinkedNodes, NodesOnly
+
 
 def Adjacent(doc):
+    args = doc.session_context.request.arguments
+    file = args.get('file')[0]
+    file = str(file.decode('UTF-8'))
+
     # df = pd.read_csv('application/dataSet/GephiMatrix_author_similarity.csv', sep=';')
-    df = pd.read_csv('application/dataSet/authors.csv', sep=';')
+    try:
+        df = pd.read_csv("media/" + file, sep=';')
+        print('Loaded data succesfully')
+    except:
+        raise Exception("File does not exist")
     # df = pd.read_csv('application/dataSet/authors_2.csv', sep=';')
     nArr = df.index.values
     dfArr = df.values
@@ -341,101 +365,179 @@ def Adjacent(doc):
 
 
 def Weighted(doc):
-    name = 'Ken_Pier'
+    args = doc.session_context.request.arguments
+    file = args.get('file')[0]
+    file = str(file.decode('UTF-8'))
 
-    df = pd.read_csv('GephiMatrix_author_similarity.csv', sep=';')
+    try:
+        dfread = pd.read_csv("media/" + file, sep=';')
+        print('Loaded data succesfully')
+    except:
+        raise Exception("File does not exist")
 
-    Graph = nx.Graph()
+    dfSort = dfread.sort_index()
+    nArr = dfread.index.values
+    dfArr = dfread.values
+    dfnsort = pd.DataFrame(nArr, columns=['names'])
+    df = dfnsort.sort_values(by=['names'])
+    nArrSort = dfSort.index.values
+    dfArrSort = dfSort.values
 
-    plot = Plot(plot_width=600, plot_height=600, x_range=Range1d(-1.1, 1.1), y_range=Range1d(-1.1, 1.1))
+    # Import / instantiate networkx graph
+    G = nx.Graph()
 
-    plot.background_fill_color = "#FCFCFC"
-    plot.background_fill_alpha = 1
-    plot.border_fill_color = "#FCFCFC"
-    plot.border_fill_alpha = 1
+    for x in range(0, len(df) - 1):
+        xVal = x + 1
+        for y in range(0, x):
+            if dfArr[xVal][y] > 0.0:
+                G.add_edge(nArr[xVal], nArr[y], weight=dfArr[xVal][y])
 
-    plot.add_tools(HoverTool(tooltips=None), TapTool(), BoxSelectTool())
+    # Node Characteristics
+    name = nArrSort[0]
+    node_name = list(G.nodes())
+    positions = nx.circular_layout(G)
 
-    nArr = df.index.values
-    dfArr = df.values
-    namenumber = 0
+    size = [3 for k in range(len(G.nodes()))]
+    nx.set_node_attributes(G, size, 'size')
+    visual_attributes = ColumnDataSource(
+        pd.DataFrame.from_dict({k: v for k, v in G.nodes(data=True)}, orient='index'))
 
-    for x in range(len(df)):
-        if nArr[x] == name:
-            namenumber = x
-            break
+    # Edge characteristics
+    start_edge = [start_edge for (start_edge, end_edge) in G.edges()]
+    end_edge = [end_edge for (start_edge, end_edge) in G.edges()]
+    weight = list(nx.get_edge_attributes(G, 'weight').values())
 
-    node_sizes = []
-    alpha = []
-    alpha_hover = []
-    width = []
-    names = []
-    edgeName = []
-    line_color = []
+    edge_df = pd.DataFrame({'source': start_edge, 'target': end_edge, 'weight': weight})
 
-    numberOfNodes = 1
+    # Create full graph from edgelist
+    G = nx.from_pandas_edgelist(edge_df, edge_attr=True)
 
-    Graph.add_node(name)
-    node_sizes.append(25)
-    names.append(nArr[x])
+    # Convert full graph to Bokeh network for node coordinates and instantiate Bokeh graph object
+    G_source = from_networkx(G, nx.circular_layout, scale=2, center=(0, 0))
+    graph = GraphRenderer()
 
-    for x in range(0, len(df)):
-        if 0.0 < dfArr[namenumber][x] and nArr[x] != name:
-            Graph.add_node(nArr[x])
-            Graph.add_edge(name, nArr[x], weight=dfArr[namenumber][x])
-            node_sizes.append(25 * Graph[name][nArr[x]]['weight'])
-            alpha.append(Graph[name][nArr[x]]['weight'])
-            alpha_hover.append(1)
-            width.append(int(5 * Graph[name][nArr[x]]['weight']))
-            names.append(nArr[x])
-            edgeName.append([nArr[x], name])
-            numberOfNodes += 1
-            line_color.append('#FF0000')
+    # Update loop where the magic happens
+    def update():
+        print(select.value)
+        node_name_ex = np.delete(node_name, np.where(node_name == select.value))
 
-    # source = ColumnDataSource(pd.DataFrame.from_dict({k:v for k,v in G.nodes(data=True)}, orient='index'))
+        name = select.value
+        namenumber = 0
+        for x in range(len(df)):
+            if nArr[x] == select.value:
+                namenumber = x
+        selected_array = []
+        for i in range(len(edge_df)):
+            if edge_df['source'][i] == select.value or edge_df['target'][i] == select.value:
+                selected_array.append(edge_df.loc[[i]])
+        selected_df = pd.concat(selected_array)
+        sub_G = nx.from_pandas_edgelist(selected_df, edge_attr=True)
+        subArr = selected_df.index.values
+        tempArr = node_name_ex
 
-    nodeSource = ColumnDataSource(data=dict(
-        size=node_sizes,
-        index=names,
-    ))
+        size = []
+        alpha = []
+        alpha_hover = []
+        width = []
+        edgeName = []
+        line_color = []
 
-    edgeSource = ColumnDataSource(data=dict(
-        line_alpha=alpha,
-        line_alpha_hover=alpha_hover,
-        line_width=width,
-        line_color=line_color,
-        index=edgeName,
-        start=[name] * (numberOfNodes - 1),
-        end=names[1:],
-    ))
+        for i in range(len(subArr)):
+            if selected_df['source'][subArr[i]] == select.value:
+                # sub_G.node[selected_df['target'][subArr[i]]]['size'] = 25 * sub_G[select.value][selected_df['target'][subArr[i]]]['weight']
+                tempArr = np.delete(tempArr, np.where(tempArr == selected_df['target'][subArr[i]]))
+                alpha.append(sub_G[selected_df['target'][subArr[i]]][select.value]['weight'])
+                alpha_hover.append(1)
+                width.append(int(5 * sub_G[selected_df['target'][subArr[i]]][select.value]['weight']))
+                line_color.append('#FF0000')
+                edgeName.append([sub_G[selected_df['target'][subArr[i]]], select.value])
+                size.append(25 * sub_G[select.value][selected_df['target'][subArr[i]]]['weight'])
+            else:
+                # sub_G.node[selected_df['source'][subArr[i]]]['size'] = 25 * sub_G[select.value][selected_df['source'][subArr[i]]]['weight']
+                tempArr = np.delete(tempArr, np.where(tempArr == selected_df['source'][subArr[i]]))
+                alpha.append(sub_G[selected_df['source'][subArr[i]]][select.value]['weight'])
+                alpha_hover.append(1)
+                width.append(int(5 * sub_G[selected_df['source'][subArr[i]]][select.value]['weight']))
+                line_color.append('#FF0000')
+                edgeName.append([sub_G[selected_df['source'][subArr[i]]], select.value])
+                size.append(25 * sub_G[select.value][selected_df['source'][subArr[i]]]['weight'])
+        for i in range(len(tempArr)):
+            if tempArr[i] == select.value:
+                # sub_G.node[tempArr[i]]['size'] = 25
+                size.append(25)
+            else:
+                sub_G.add_node(tempArr[i])
+                # sub_G.node[tempArr[i]]['size'] = 0
+                alpha.append(0)
+                alpha_hover.append(1)
+                width.append(0)
+                line_color.append('#FF0000')
+                edgeName.append(["source", "target"])
+                size.append(0)
+        sub_graph = from_networkx(sub_G, nx.circular_layout, scale=2, center=(0, 0))
 
-    graph_renderer = from_networkx(Graph, nx.shell_layout, center=(0, 0))
+        nodeSource = ColumnDataSource(data=dict(
+            size=size,
+            index=node_name,
+        ))
 
-    graph_renderer.node_renderer.data_source = nodeSource
-    graph_renderer.node_renderer.glyph = Circle(size='size', fill_color="#FCFCFC")
-    graph_renderer.node_renderer.selection_glyph = Circle(size='size', fill_color="#000000")
-    graph_renderer.node_renderer.hover_glyph = Circle(size='size', fill_color="#22A784")
+        edgeSource = ColumnDataSource(data=dict(
+            line_alpha=alpha,
+            line_alpha_hover=alpha_hover,
+            line_width=width,
+            line_color=line_color,
+            index=edgeName,
+            start=[node_name[0]] * (len(node_name) - 1),
+            end=node_name[1:],
+        ))
 
-    graph_renderer.edge_renderer.data_source = edgeSource
-    graph_renderer.edge_renderer.glyph = MultiLine(line_color='line_color', line_alpha='line_alpha',
-                                                   line_width='line_width')
+        # sub_graph.edge_renderer.data_source = edgeSource
+        sub_graph.node_renderer.data_source = nodeSource
 
-    graph_renderer.edge_renderer.selection_glyph = MultiLine(line_color='line_color', line_alpha='line_alpha_hover',
-                                                             line_width='line_width')
+        graph.edge_renderer.data_source.data = sub_graph.edge_renderer.data_source.data
+        graph.node_renderer.data_source.data = sub_graph.node_renderer.data_source.data
+        graph.node_renderer.data_source.add(size, 'size')
 
-    graph_renderer.edge_renderer.hover_glyph = MultiLine(line_color='line_color', line_alpha='line_alpha_hover',
-                                                         line_width='line_width')
+    def selected_points(attr, old, new):
+        selected_idx = graph.node_renderer.selected.indices  # does not work
+        print(selected_idx)
 
-    graph_renderer.selection_policy = NodesAndLinkedEdges() and EdgesAndLinkedNodes()
-    graph_renderer.inspection_policy = NodesAndLinkedEdges() and EdgesAndLinkedNodes()
+    # Slider which changes values to update the graph
+    select = Select(title='names', options=nArrSort.tolist(), value=nArrSort[0])
+    select.on_change('value', lambda attr, old, new: update())
 
-    plot.renderers.append(graph_renderer)
-    doc.add_root(column(plot))
+    # Plot object which is updated
+    plot = figure(title="Meetup Network Analysis", x_range=(-1.1, 1.1), y_range=(-1.1, 1.1),
+                  tools="pan,wheel_zoom,box_select,reset,box_zoom,crosshair", plot_width=600, plot_height=600)
+
+    # Assign layout for nodes, render graph, and add hover tool
+    graph.layout_provider = StaticLayoutProvider(graph_layout=positions)
+
+    graph.node_renderer.glyph = Circle(size='size', fill_color="#FCFCFC")
+    graph.node_renderer.selection_glyph = Circle(size='size', fill_color="#000000")
+    graph.node_renderer.hover_glyph = Circle(size='size', fill_color="#22A784")
+
+    # graph.edge_renderer.glyph = MultiLine(line_color='line_color', line_alpha='line_alpha', line_width='line_width')
+    # graph.edge_renderer.selection_glyph = MultiLine(line_color='line_color', line_alpha='line_alpha_hover', line_width='line_width')
+    # graph.edge_renderer.hover_glyph = MultiLine(line_color='line_color', line_alpha='line_alpha_hover', line_width='line_width')
+
+    graph.selection_policy = NodesOnly()
+    plot.renderers.append(graph)
+    plot.tools.append(HoverTool(tooltips=[('Name', '@index')]))
+
+    # Set layout
+    layout = column(select, plot)
+
+    # does not work
+    graph.node_renderer.data_source.selected.on_change("indices", selected_points)
+
+    # Create Bokeh server object
+    doc.add_root(layout)
+    update()
 
 
 def Grouped(doc):
     args = doc.session_context.request.arguments
-    print(args)
     file = args.get('file')[0]
     file = str(file.decode('UTF-8'))
 
