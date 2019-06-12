@@ -210,7 +210,7 @@ def Adjacent(doc):
     map = cm.get_cmap("BuPu")
     bokehpalette = [mpl.colors.rgb2hex(m) for m in map(np.arange(map.N))]
     mapper = LinearColorMapper(palette=bokehpalette, low=counts.min().min(), high=counts.max().max())
-    mapper_2 = LinearColorMapper(palette=bokehpalette, low=counts.min().min(), high=(counts.max().max()) / 3)
+    mapper_2 = LinearColorMapper(palette=bokehpalette, low=counts.min().min(), high=(counts.max().max()) / 5)
     ######################################################
 
     data = dict(
@@ -335,7 +335,7 @@ def Adjacent(doc):
                          label_standoff=6, border_line_color=None, location=(0, 0))
     p.add_layout(color_bar, 'right')
     p2.add_layout(color_bar, 'right')
-    p4.add_layout(color_bar, 'right')
+    p3.add_layout(color_bar, 'right')
     p4.add_layout(color_bar, 'right')
     p5.add_layout(color_bar, 'right')
 
