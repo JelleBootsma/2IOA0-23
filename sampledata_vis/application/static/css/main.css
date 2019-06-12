@@ -1,7 +1,17 @@
 body{
 /*!*    background-image: url("background.jpg");*!*/
-  margin: 0;
+    background-image: url("background5.jpg");
+    background-repeat: repeat;
+    background-size: cover;
 }
+
+.bg-image {
+  filter: blur(8px);
+  -webkit-filter: blur(8px);
+  background-repeat: repeat;
+  background-size: cover;
+}
+
 
 #homegraph{
   width: 400px;
@@ -71,6 +81,12 @@ a:hover{
   }
 }
 
+#center{
+  text-align: center;
+  margin: 0 auto;
+  align-content: center;
+}
+
 
 /*--------------------------------------------------------------
 # Intro Section
@@ -79,10 +95,21 @@ a:hover{
 #intro {
   display: table;
   width: 100%;
-  height: auto;
-  background-image: url("background.jpg");
+  height: fit-content;
+  /*background-image: url("background.jpg");*/
+  /*background-size: cover;*/
   text-align: center;
   text-orientation: sideways;
+  margin-top: auto;
+  /*background-color: rgba(0, 0, 0, 0.6);*/
+}
+
+#intro-container{
+  height: auto;
+}
+
+#carousel-container .carousel-content{
+  margin-top: 200px;
 }
 
 #intro .carousel-item {
@@ -90,12 +117,12 @@ a:hover{
   height: 100vh;
   background-size: cover;
   background-position: center;
-  background-repeat: no-repeat;
+  background-repeat: repeat;
 }
 
 #intro .carousel-item::before {
   content: '';
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.4);
   position: absolute;
   height: 100%;
   width: 100%;
@@ -183,7 +210,7 @@ a:hover{
 /* Sections */
 
 .section-header {
-    font-size: 32px;
+  font-size: 32px;
   color: #ffefef;
   text-align: center;
   font-weight: 700;
