@@ -40,8 +40,8 @@ def weightedgraph(request):
     return render_to_response('pages/visualization2.html', dict(script=script))
 
 
-def faq(request):
-    return render(request, 'pages/FAQ.html')
+def aboutus(request):
+    return render(request, 'pages/aboutus.html')
 
 
 def data(request):

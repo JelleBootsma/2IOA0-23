@@ -29,7 +29,7 @@
 
         <script src="https://cdn.pydata.org/bokeh/release/bokeh-1.1.0.min.js"></script>
         <script src="https://cdn.pydata.org/bokeh/release/bokeh-widgets-1.1.0.min.js"></script>
-        <title>Visualization</title>
+        <title>Visualizations</title>
 
     </head>
     <body>
@@ -51,7 +51,7 @@
                         Visualizations
                     </a>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item" href={% url 'vis1' %}>Force directed diagram</a>
+                        <a class="dropdown-item" href={% url 'vis1' %}>Grouped node-link diagram</a>
                         <a class="dropdown-item" href={% url 'vis2' %}>Radial node-link diagram</a>
                         <a class="dropdown-item" href={% url 'vis3' %}>Adjacency Matrix</a>
                     </div>
@@ -63,29 +63,34 @@
 
             </ul>
 
+
         </nav>
 
-                <!-- Main Content -->
-        <section id="intro">
-{#            <div class = "intro-container">#}
-{#                        <div class="carousel-item active">#}
-{#                            <div class = "carousel-container text-center">#}
-{#                                <div class = "carousel-inner">#}
-{#                                        <h2 class="visfont"> Step 3: </h2>#}
-{#                                        <h3> Analyze!</h3>#}
-{#                                        {{ script | safe }}#}
-{#                                </div>#}
-{#                            </div>#}
-{#                            {{ script | safe }}#}
-{#                        </div>#}
-{#            </div>#}
-            <h2 class="visfont text-center"> Step 3:</h2>
-            <h3 class=" visfont text-center">Analyze!</h3>
-{#            <div class="center">#}
-                <center>
-                    {{ script | safe }}
-                </center>
-{#            </div>#}
-        </section>
+        <div class="bg-image"></div>
+
+
+                    <!-- Main Content -->
+            <section id="intro">
+    {#            <div class = "intro-container">#}
+    {#                        <div class="carousel-item active">#}
+    {#                            <div class = "carousel-container text-center">#}
+    {#                                <div class = "carousel-inner">#}
+    {#                                        <h2 class="visfont"> Step 3: </h2>#}
+    {#                                        <h3> Analyze!</h3>#}
+    {#                                        {{ script | safe }}#}
+    {#                                </div>#}
+    {#                            </div>#}
+    {#                            {{ script | safe }}#}
+    {#                        </div>#}
+    {#            </div>#}
+                <h2 class="visfont text-center"> Step 3:</h2>
+                <h3 class="text-center">Analyze!</h3>
+    {#            <div class="center">#}
+                    <center>
+                        {{ script | safe }}
+                    </center>
+    {#            </div>#}
+            </section>
+
     </body>
 </html>
