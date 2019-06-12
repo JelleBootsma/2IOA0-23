@@ -24,13 +24,12 @@
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.0/js/bootstrap.min.js" integrity="sha384–7aThvCh9TypR7fIc2HV4O/nFMVCBwyIUKL8XCtKE+8xgCgl/PQGuFsvShjr74PBp" crossorigin="anonymous"></script>
 
 
-        <link href="http://cdn.pydata.org/bokeh/release/bokeh-1.1.0.min.css" rel=”stylesheet” type=”text/css”>
-        <link href="http://cdn.pydata.org/bokeh/release/bokeh-widgets-1.1.0.min.css" rel=”stylesheet” type=”text/css”>
+        <link href="https://cdn.pydata.org/bokeh/release/bokeh-1.1.0.min.css" rel="stylesheet" type="text/css">
+        <link href="https://cdn.pydata.org/bokeh/release/bokeh-widgets-1.1.0.min.css" rel=”stylesheet” type=”text/css”>
 
-        <script src="http://cdn.pydata.org/bokeh/release/bokeh-1.1.0.min.js"></script>
-        <script src="http://cdn.pydata.org/bokeh/release/bokeh-widgets-1.1.0.min.js"></script>
-        {{ script | safe }}
-        <title>2IOA0 DBL HTI & web technology</title>
+        <script src="https://cdn.pydata.org/bokeh/release/bokeh-1.1.0.min.js"></script>
+        <script src="https://cdn.pydata.org/bokeh/release/bokeh-widgets-1.1.0.min.js"></script>
+        <title>Visualizations</title>
 
     </head>
     <body>
@@ -64,31 +63,34 @@
 
             </ul>
 
+
         </nav>
 
-                <!-- Main Content -->
-        <section id="intro">
-            <div class = "intro-container">
-                        <div class="carousel-item active">
-                            <div class = "carousel-container">
-                                <div class = "carousel-content visfont">
-                                    <h1> Visify </h1>
-                                    <p>We visualize your data. With visify, you will be able to analyze relational data
-                                    sets in just three simple steps. You do the steps, we do the rest.</p>
-                                    <a href ={%  url 'step1' %} class="btn-get-started big">Get Started!</a>
-                                    <div id = "homegraph">
-{#                                        {{ div | safe }}#}
-{#                                        {{ script | safe }}#}
-                                    </div>
-                                </div>
-                            </div>
-                </div>
-            </div>
-        </section>
+        <div class="bg-image"></div>
 
 
+                    <!-- Main Content -->
+            <section id="intro">
+    {#            <div class = "intro-container">#}
+    {#                        <div class="carousel-item active">#}
+    {#                            <div class = "carousel-container text-center">#}
+    {#                                <div class = "carousel-inner">#}
+    {#                                        <h2 class="visfont"> Step 3: </h2>#}
+    {#                                        <h3> Analyze!</h3>#}
+    {#                                        {{ script | safe }}#}
+    {#                                </div>#}
+    {#                            </div>#}
+    {#                            {{ script | safe }}#}
+    {#                        </div>#}
+    {#            </div>#}
+                <h2 class="visfont text-center"> Step 3:</h2>
+                <h3 class="text-center">Analyze!</h3>
+    {#            <div class="center">#}
+                    <center>
+                        {{ script | safe }}
+                    </center>
+    {#            </div>#}
+            </section>
 
-            </div>
-        </div>
     </body>
 </html>
