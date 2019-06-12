@@ -1,6 +1,6 @@
 {%  load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:style="http://www.w3.org/1999/xhtml">
     <head>
         <meta charset = "UTF-8">
         <meta http-equiv="X-UA-Compatible" content="ÏE-Edge">
@@ -67,22 +67,25 @@
 
                 <!-- Main Content -->
         <section id="intro">
-            <div class = "intro-container">
-                        <div class="carousel-item active">
-                            <div class = "carousel-container">
-                                <div class = "carousel-content">
-                                        <h2 class="visfont"> Step 3: </h2>
-                                        <h3> Analyze!</h3>
-
-                                     <div id = "homegraph">
-                                        {{ script | safe }}
-                                     </div>
-
-
-                                </div>
-                            </div>
-                        </div>
-            </div>
+{#            <div class = "intro-container">#}
+{#                        <div class="carousel-item active">#}
+{#                            <div class = "carousel-container text-center">#}
+{#                                <div class = "carousel-inner">#}
+{#                                        <h2 class="visfont"> Step 3: </h2>#}
+{#                                        <h3> Analyze!</h3>#}
+{#                                        {{ script | safe }}#}
+{#                                </div>#}
+{#                            </div>#}
+{#                            {{ script | safe }}#}
+{#                        </div>#}
+{#            </div>#}
+            <h2 class="visfont text-center"> Step 3:</h2>
+            <h3 class="text-center">Analyze!</h3>
+{#            <div class="center">#}
+                <center>
+                    {{ script | safe }}
+                </center>
+{#            </div>#}
         </section>
 
 
