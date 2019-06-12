@@ -108,10 +108,12 @@
 {#                                                        <p>Uploaded file: <a href="{{ data.title }}"></a></p>#}
 {#                                                    {% endif %}#}
 {#                                                    {% if url != GephiMatrix_author_similarity.csv or GephiMatrix_co-authorship.csv or GephiMatrix_co-citation.csv%}#}
+                                                      {% if data.Deletable != 'No' %}
                                                         <form method="post" action="{% url 'delete_data' data.pk %}">
                                                             {% csrf_token %}
                                                             <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                                                         </form>
+                                                     {% endif %}
                                                 </td>
                                                 </tr>
                                             {% endfor %}
