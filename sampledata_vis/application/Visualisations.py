@@ -1,22 +1,5 @@
-from typing import TextIO, List, Any
-from django import forms
-from django.shortcuts import render, render_to_response, redirect, HttpResponse
-from bokeh.plotting import figure, output_file, show
-from bokeh.embed import components
 import csv
-import time
-import pandas as pd
-import numpy as np
-import networkx as nx
-from bokeh.models import Plot, Range1d, MultiLine, GraphRenderer, CustomJS, StaticLayoutProvider, Circle, HoverTool, TapTool, BoxSelectTool, ColumnDataSource, \
-    LinearColorMapper
-from bokeh.models.graphs import from_networkx, NodesAndLinkedEdges, EdgesAndLinkedNodes, NodesOnly
 from bokeh.models.widgets import Tabs, Panel, Select
-from bokeh.palettes import *
-from django.views.generic import TemplateView
-from django.core.files.storage import FileSystemStorage
-from .forms import DataForm
-from .models import Data
 from bokeh.models import (
     ColumnDataSource,
     HoverTool,
@@ -26,22 +9,17 @@ from bokeh.models import (
     ColorBar,
     FactorRange
 )
-from bokeh.plotting import figure
-from bokeh.palettes import BuPu
 import matplotlib.cm as cm
 import matplotlib as mpl
 from matplotlib import colors
 import holoviews as hv  # There is a reason we have to do this here but its not important. Holoviews is the next library
-
 hv.extension('bokeh')
 from bokeh.transform import linear_cmap
 from bokeh.transform import transform
 from bokeh.palettes import Spectral4
 from bokeh.layouts import column
-
 import pandas as pd
 import numpy as np
-
 from bokeh.layouts import row, widgetbox, column
 from bokeh.models import ColumnDataSource, CustomJS, StaticLayoutProvider, Oval, Circle
 from bokeh.models import HoverTool, TapTool, BoxSelectTool, GraphRenderer, MultiLine
@@ -381,6 +359,7 @@ def Weighted(doc):
     dfnsort = pd.DataFrame(nArr, columns=['names'])
     df = dfnsort.sort_values(by=['names'])
     nArrSort = dfSort.index.values
+    nArrSortND = np.asarray(list(dict.fromkeys(nArrSort)))
     dfArrSort = dfSort.values
 
     # Import / instantiate networkx graph
@@ -393,14 +372,14 @@ def Weighted(doc):
                 G.add_edge(nArr[xVal], nArr[y], weight=dfArr[xVal][y])
 
     # Node Characteristics
-    name = nArrSort[0]
-    node_name = list(G.nodes())
-    positions = nx.circular_layout(G)
+    name = nArrSortND[0]
+    # node_name = list(G.nodes())
+    # positions = nx.circular_layout(G)
 
-    size = [3 for k in range(len(G.nodes()))]
-    nx.set_node_attributes(G, size, 'size')
-    visual_attributes = ColumnDataSource(
-        pd.DataFrame.from_dict({k: v for k, v in G.nodes(data=True)}, orient='index'))
+    # size = [3 for k in range(len(G.nodes()))]
+    # nx.set_node_attributes(G, size, 'size')
+    # visual_attributes=ColumnDataSource(
+    #    pd.DataFrame.from_dict({k:v for k,v in G.nodes(data=True)},orient='index'))
 
     # Edge characteristics
     start_edge = [start_edge for (start_edge, end_edge) in G.edges()]
@@ -419,8 +398,7 @@ def Weighted(doc):
     # Update loop where the magic happens
     def update():
         print(select.value)
-        node_name_ex = np.delete(node_name, np.where(node_name == select.value))
-
+        node_name_ex = np.delete(nArrSortND, np.where(nArrSortND == select.value))
         name = select.value
         namenumber = 0
         for x in range(len(df)):
@@ -433,6 +411,7 @@ def Weighted(doc):
         selected_df = pd.concat(selected_array)
         sub_G = nx.from_pandas_edgelist(selected_df, edge_attr=True)
         subArr = selected_df.index.values
+        subArrVal = selected_df.values
         tempArr = node_name_ex
 
         size = []
@@ -441,44 +420,52 @@ def Weighted(doc):
         width = []
         edgeName = []
         line_color = []
+        i = 0
 
-        for i in range(len(subArr)):
-            if selected_df['source'][subArr[i]] == select.value:
-                # sub_G.node[selected_df['target'][subArr[i]]]['size'] = 25 * sub_G[select.value][selected_df['target'][subArr[i]]]['weight']
-                tempArr = np.delete(tempArr, np.where(tempArr == selected_df['target'][subArr[i]]))
-                alpha.append(sub_G[selected_df['target'][subArr[i]]][select.value]['weight'])
-                alpha_hover.append(1)
-                width.append(int(5 * sub_G[selected_df['target'][subArr[i]]][select.value]['weight']))
-                line_color.append('#FF0000')
-                edgeName.append([sub_G[selected_df['target'][subArr[i]]], select.value])
-                size.append(25 * sub_G[select.value][selected_df['target'][subArr[i]]]['weight'])
-            else:
-                # sub_G.node[selected_df['source'][subArr[i]]]['size'] = 25 * sub_G[select.value][selected_df['source'][subArr[i]]]['weight']
-                tempArr = np.delete(tempArr, np.where(tempArr == selected_df['source'][subArr[i]]))
-                alpha.append(sub_G[selected_df['source'][subArr[i]]][select.value]['weight'])
-                alpha_hover.append(1)
-                width.append(int(5 * sub_G[selected_df['source'][subArr[i]]][select.value]['weight']))
-                line_color.append('#FF0000')
-                edgeName.append([sub_G[selected_df['source'][subArr[i]]], select.value])
-                size.append(25 * sub_G[select.value][selected_df['source'][subArr[i]]]['weight'])
-        for i in range(len(tempArr)):
-            if tempArr[i] == select.value:
-                # sub_G.node[tempArr[i]]['size'] = 25
+        for p in range(len(nArrSortND)):
+            if nArrSortND[p] == select.value:
                 size.append(25)
             else:
-                sub_G.add_node(tempArr[i])
-                # sub_G.node[tempArr[i]]['size'] = 0
-                alpha.append(0)
-                alpha_hover.append(1)
-                width.append(0)
-                line_color.append('#FF0000')
-                edgeName.append(["source", "target"])
-                size.append(0)
+                if nArrSortND[p] in subArrVal:
+                    if selected_df['source'][subArr[i]] == select.value:
+                        # sub_G.node[selected_df['target'][subArr[i]]]['size'] = 25 * sub_G[select.value][selected_df['target'][subArr[i]]]['weight']
+                        tempArr = np.delete(tempArr, np.where(tempArr == selected_df['target'][subArr[i]]))
+                        alpha.append(sub_G[selected_df['target'][subArr[i]]][select.value]['weight'])
+                        alpha_hover.append(1)
+                        width.append(int(5 * sub_G[selected_df['target'][subArr[i]]][select.value]['weight']))
+                        line_color.append('#FF0000')
+                        edgeName.append([select.value, nArrSortND[p]])
+                        size.append(25 * sub_G[select.value][selected_df['target'][subArr[i]]]['weight'])
+                    else:
+                        # sub_G.node[selected_df['source'][subArr[i]]]['size'] = 25 * sub_G[select.value][selected_df['source'][subArr[i]]]['weight']
+                        tempArr = np.delete(tempArr, np.where(tempArr == selected_df['source'][subArr[i]]))
+                        alpha.append(sub_G[selected_df['source'][subArr[i]]][select.value]['weight'])
+                        alpha_hover.append(1)
+                        width.append(int(5 * sub_G[selected_df['source'][subArr[i]]][select.value]['weight']))
+                        line_color.append('#FF0000')
+                        edgeName.append([select.value, nArrSortND[p]])
+                        size.append(25 * sub_G[select.value][selected_df['source'][subArr[i]]]['weight'])
+                    i = i + 1
+                else:
+                    sub_G.add_node(nArrSortND[p])
+                    # sub_G.node[tempArr[i]]['size'] = 0
+                    alpha.append(0)
+                    alpha_hover.append(1)
+                    width.append(0)
+                    line_color.append('#FF0000')
+                    edgeName.append(["source", "target"])
+                    size.append(0)
+
         sub_graph = from_networkx(sub_G, nx.circular_layout, scale=2, center=(0, 0))
+
+        tempnArrSortND1 = nArrSortND[(np.where(nArrSortND == select.value)[0][0]):]
+        tempnArrSortND2 = nArrSortND[:(np.where(nArrSortND == select.value)[0][0])]
+
+        newnArrSortND = np.append(tempnArrSortND1, tempnArrSortND2)
 
         nodeSource = ColumnDataSource(data=dict(
             size=size,
-            index=node_name,
+            index=nArrSortND,
         ))
 
         edgeSource = ColumnDataSource(data=dict(
@@ -487,11 +474,23 @@ def Weighted(doc):
             line_width=width,
             line_color=line_color,
             index=edgeName,
-            start=[node_name[0]] * (len(node_name) - 1),
-            end=node_name[1:],
+            start=[select.value] * (len(nArrSortND) - 1),
+            end=newnArrSortND[1:],
         ))
+        print('node data:')
+        print('size; ', len(size))
+        print('node names; ', len(nArrSortND))
 
-        # sub_graph.edge_renderer.data_source = edgeSource
+        print('edge data:')
+        print('alpha; ', len(alpha))
+        print('alpha hover; ', len(alpha_hover))
+        print('width; ', len(width))
+        print('color; ', len(line_color))
+        print('edge names; ', len(edgeName))
+        print('start; ', len([nArrSortND[0]] * (len(nArrSortND) - 1)))
+        print('end; ', len(nArrSortND[1:]))
+
+        sub_graph.edge_renderer.data_source = edgeSource
         sub_graph.node_renderer.data_source = nodeSource
 
         graph.edge_renderer.data_source.data = sub_graph.edge_renderer.data_source.data
@@ -503,12 +502,14 @@ def Weighted(doc):
         print(selected_idx)
 
     # Slider which changes values to update the graph
-    select = Select(title='names', options=nArrSort.tolist(), value=nArrSort[0])
+    select = Select(title='names', options=nArrSortND.tolist(), value=nArrSortND[0])
     select.on_change('value', lambda attr, old, new: update())
+
+    positions = nx.circular_layout(G)
 
     # Plot object which is updated
     plot = figure(title="Meetup Network Analysis", x_range=(-1.1, 1.1), y_range=(-1.1, 1.1),
-                  tools="pan,wheel_zoom,box_select,reset,box_zoom,crosshair", plot_width=600, plot_height=600)
+                  tools="pan,wheel_zoom,box_select,reset,box_zoom", plot_width=600, plot_height=600)
 
     # Assign layout for nodes, render graph, and add hover tool
     graph.layout_provider = StaticLayoutProvider(graph_layout=positions)
@@ -517,13 +518,16 @@ def Weighted(doc):
     graph.node_renderer.selection_glyph = Circle(size='size', fill_color="#000000")
     graph.node_renderer.hover_glyph = Circle(size='size', fill_color="#22A784")
 
-    # graph.edge_renderer.glyph = MultiLine(line_color='line_color', line_alpha='line_alpha', line_width='line_width')
-    # graph.edge_renderer.selection_glyph = MultiLine(line_color='line_color', line_alpha='line_alpha_hover', line_width='line_width')
-    # graph.edge_renderer.hover_glyph = MultiLine(line_color='line_color', line_alpha='line_alpha_hover', line_width='line_width')
+    graph.edge_renderer.glyph = MultiLine(line_color='line_color', line_alpha='line_alpha', line_width='line_width')
+    graph.edge_renderer.selection_glyph = MultiLine(line_color='line_color', line_alpha='line_alpha_hover',
+                                                    line_width='line_width')
+    graph.edge_renderer.hover_glyph = MultiLine(line_color='line_color', line_alpha='line_alpha_hover',
+                                                line_width='line_width')
 
-    graph.selection_policy = NodesOnly()
+    graph.inspection_policy = NodesAndLinkedEdges and EdgesAndLinkedNodes()
+    graph.selection_policy = NodesAndLinkedEdges()
     plot.renderers.append(graph)
-    plot.tools.append(HoverTool(tooltips=[('Name', '@index')]))
+    plot.tools.append(HoverTool(tooltips=[("index", "@index"), ("weight", "@line_alpha")]))
 
     # Set layout
     layout = column(select, plot)
