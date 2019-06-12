@@ -7,12 +7,17 @@ Scripts\activate.
 Then you can run the project by:
 python manage.py runserver
 
-You can also find our website through this link:
-https://group23datavisualization.herokuapp.com/
 
-We have two basic visualizations implemented on the website:
-1. Coauthorship visualization
-2. Weighted Network graph
+We have three visualizations implemented on the website:
+1. Force directed diagram
+2. Radial node link diagram
+3. Adjacency matrix
 These visualizations can be found through selecting the links to these visualizations on either the navigation bar called
-visualizations, or at the bottom of our homepage. Visualization 3 and loading data are not yet available. The
+visualizations, or by clicking on start, choosing a dataset and clicking on the desired diagram in step 3. It is also possible
+to upload your own files. Note that the Radial node link diagram works best with the Author similarity dataset. The
 visualizations might take some time, we are still working on runtime improvements.
+
+The Force directed diagram works well, takes some time to laod and has zooming in options integrated in the bar on the side.
+The Radial node link diagram, there you can choose using the table above the graph which node you want to focus one and then you can click
+on the other nodes in the graph to see that path/paths between the target node and the selected node.
+The Adjacency matrix has 5 different reorderings. These are Adjacency Matrix, Alphabetical Adjacency, Distance Matrix, Increasing Distance, Decreasing Distance.

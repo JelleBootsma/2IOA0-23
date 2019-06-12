@@ -33,10 +33,10 @@ def coauthorship(request):
 
 
 def weightedgraph(request):
-
     fileLocation = request.COOKIES['Data']
+
     # store comments
-    script = server_document('http://localhost:5006/Weighted')
+    script = server_document('http://localhost:5006/Weighted', arguments={'file': fileLocation})
     return render_to_response('pages/visualization2.html', dict(script=script))
 
 
@@ -93,10 +93,10 @@ def step2(request):
 
 
 def adjacencymatrix(request):
+    fileLocation = request.COOKIES['Data']
 
     # store comments
-
-    script = server_document('http://localhost:5006/Adjacent')
+    script = server_document('http://localhost:5006/Adjacent', arguments={'file': fileLocation})
     return render_to_response('pages/visualization3.html', dict(script=script))
 
 
