@@ -17,7 +17,7 @@ visualizations, or by clicking on start, choosing a dataset and clicking on the 
 to upload your own files. Note that the Radial node link diagram works best with the Author similarity dataset. The
 visualizations might take some time, we are still working on runtime improvements.
 
-The Force directed diagram works well, takes some time to laod and has zooming in options integrated in the bar on the side.
+The Force directed diagram works well, takes some time to load and has zooming in options integrated in the bar on the side.
 The Radial node link diagram, there you can choose using the table above the graph which node you want to focus one and then you can click
 on the other nodes in the graph to see that path/paths between the target node and the selected node.
 The Adjacency matrix has 5 different reorderings. These are Adjacency Matrix, Alphabetical Adjacency, Distance Matrix, Increasing Distance, Decreasing Distance.
