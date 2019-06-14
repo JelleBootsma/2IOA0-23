@@ -73,6 +73,20 @@ def Adjacent(doc):
             counts[i, j] = nodes[j][i]
             counts[j, i] = nodes[j][i]
 
+    # If data too large
+    #########################################################
+    # if len(names) > 50:
+    #     n = 50
+    #     while len(names) != 50:
+    #         names = np.delete(names, (n))
+    #         counts = np.delete(counts, (n), axis=0)
+    #         counts = np.delete(counts, (n), axis=1)
+    N = len(names)
+    if len(names) > 110:
+        counts = np.delete(counts, np.s_[110:N], axis=0)
+        counts = np.delete(counts,  np.s_[110:N], axis=1)
+    if len(names) > 110:
+        names = np.delete(names, np.s_[110:N])
     # Deleting duplicates
     #########################################################
     arrayi = []
@@ -88,20 +102,21 @@ def Adjacent(doc):
                             names = np.delete(names, l)
                             arrayi.append(q)
                             arrayj.append(l)
-
     for j in arrayj:
         counts = np.delete(counts, (j), axis=0)
         counts = np.delete(counts, (j), axis=1)
-    #########################################################
 
-    # If data too large
+    deleted = 0
+    index_K = 0
+    for k in counts:
+        index = np.where(k == 0.0)
+        if len(index[0]) == (len(counts) + deleted):
+            counts = np.delete(counts, index_K - deleted, axis=0)
+            counts = np.delete(counts, index_K - deleted, axis=1)
+            names = np.delete(names, index_K - deleted)
+            deleted = deleted + 1
+        index_K = index_K + 1
     #########################################################
-    if len(names) > 50:
-        n = 50
-        while len(names) != 50:
-            names = np.delete(names, (n))
-            counts = np.delete(counts, (n), axis=0)
-            counts = np.delete(counts, (n), axis=1)
 
     # Make a distance matrix
     #######################################################
@@ -224,7 +239,7 @@ def Adjacent(doc):
     map = cm.get_cmap("BuPu")
     bokehpalette = [mpl.colors.rgb2hex(m) for m in map(np.arange(map.N))]
     mapper = LinearColorMapper(palette=bokehpalette, low=counts.min().min(), high=counts.max().max())
-    mapper_2 = LinearColorMapper(palette=bokehpalette, low=counts.min().min(), high=(counts.max().max()) / 5)
+    mapper_2 = LinearColorMapper(palette=bokehpalette, low=distanceM_3.min().min(), high=(distanceM_3.max().max()))
     ######################################################
 
     data = dict(
@@ -248,8 +263,8 @@ def Adjacent(doc):
     p = figure(x_axis_location="above", tools="hover,save,wheel_zoom,box_zoom,reset",
                y_range=list(reversed(names)), x_range=names,
                tooltips=[('names', '@yname, @xname'), ('count', '@count')])
-    p.plot_width = 800
-    p.plot_height = 800
+    p.plot_width = 1200
+    p.plot_height = 1000
     p.grid.grid_line_color = None
     p.axis.axis_line_color = None
     p.axis.major_tick_line_color = None
@@ -262,8 +277,8 @@ def Adjacent(doc):
     p2 = figure(x_axis_location="above", tools="hover,save,wheel_zoom,box_zoom,reset",
                 y_range=list(reversed(namesAlph)), x_range=namesAlph,
                 tooltips=[('names', '@yname_2, @xname_2'), ('count_2', '@count_2')])
-    p2.plot_width = 800
-    p2.plot_height = 800
+    p2.plot_width = 1200
+    p2.plot_height = 1000
     p2.grid.grid_line_color = None
     p2.axis.axis_line_color = None
     p2.axis.major_tick_line_color = None
@@ -276,8 +291,8 @@ def Adjacent(doc):
     p3 = figure(x_axis_location="above", tools="hover,save,wheel_zoom,box_zoom,reset",
                 y_range=list(reversed(names)), x_range=names,
                 tooltips=[('names', '@yname, @xname'), ('count_3', '@count_3')])
-    p3.plot_width = 800
-    p3.plot_height = 800
+    p3.plot_width = 1200
+    p3.plot_height = 1000
     p3.grid.grid_line_color = None
     p3.axis.axis_line_color = None
     p3.axis.major_tick_line_color = None
@@ -290,8 +305,8 @@ def Adjacent(doc):
     p4 = figure(x_axis_location="above", tools="hover,save,wheel_zoom,box_zoom,reset",
                 y_range=list(reversed(namesHeirRow)), x_range=namesHeirColumn,
                 tooltips=[('names', '@yname_3, @xname_3'), ('count_4', '@count_4')])
-    p4.plot_width = 800
-    p4.plot_height = 800
+    p4.plot_width = 1200
+    p4.plot_height = 1000
     p4.grid.grid_line_color = None
     p4.axis.axis_line_color = None
     p4.axis.major_tick_line_color = None
@@ -305,8 +320,8 @@ def Adjacent(doc):
     p5 = figure(x_axis_location="above", tools="hover,save,wheel_zoom,box_zoom,reset",
                 y_range=namesHeirRow, x_range=list(reversed(namesHeirColumn)),
                 tooltips=[('names', '@yname_3, @xname_3'), ('count_4', '@count_4')])
-    p5.plot_width = 800
-    p5.plot_height = 800
+    p5.plot_width = 1200
+    p5.plot_height = 1000
     p5.grid.grid_line_color = None
     p5.axis.axis_line_color = None
     p5.axis.major_tick_line_color = None
@@ -353,7 +368,7 @@ def Adjacent(doc):
     p4.add_layout(color_bar, 'right')
     p5.add_layout(color_bar, 'right')
 
-    doc.add_root(column(tabs))
+    doc.add_root(row(tabs))
 
 
 def Weighted(doc):
@@ -411,7 +426,6 @@ def Weighted(doc):
 
     # Update loop where the magic happens
     def update():
-        print(select.value)
         node_name_ex = np.delete(nArrSortND, np.where(nArrSortND == select.value))
         name = select.value
         namenumber = 0
@@ -491,18 +505,18 @@ def Weighted(doc):
             start=[select.value] * (len(nArrSortND) - 1),
             end=newnArrSortND[1:],
         ))
-        print('node data:')
-        print('size; ', len(size))
-        print('node names; ', len(nArrSortND))
-
-        print('edge data:')
-        print('alpha; ', len(alpha))
-        print('alpha hover; ', len(alpha_hover))
-        print('width; ', len(width))
-        print('color; ', len(line_color))
-        print('edge names; ', len(edgeName))
-        print('start; ', len([nArrSortND[0]] * (len(nArrSortND) - 1)))
-        print('end; ', len(nArrSortND[1:]))
+        # print('node data:')
+        # print('size; ', len(size))
+        # print('node names; ', len(nArrSortND))
+        #
+        # print('edge data:')
+        # print('alpha; ', len(alpha))
+        # print('alpha hover; ', len(alpha_hover))
+        # print('width; ', len(width))
+        # print('color; ', len(line_color))
+        # print('edge names; ', len(edgeName))
+        # print('start; ', len([nArrSortND[0]] * (len(nArrSortND) - 1)))
+        # print('end; ', len(nArrSortND[1:]))
 
         sub_graph.edge_renderer.data_source = edgeSource
         sub_graph.node_renderer.data_source = nodeSource
@@ -513,7 +527,7 @@ def Weighted(doc):
 
     def selected_points(attr, old, new):
         selected_idx = graph.node_renderer.selected.indices  # does not work
-        print(selected_idx)
+        #print(selected_idx)
 
     # Slider which changes values to update the graph
     select = Select(title='names', options=nArrSortND.tolist(), value=nArrSortND[0])
@@ -522,8 +536,8 @@ def Weighted(doc):
     positions = nx.circular_layout(G)
 
     # Plot object which is updated
-    plot = figure(title="Meetup Network Analysis", x_range=(-1.1, 1.1), y_range=(-1.1, 1.1),
-                  tools="pan,wheel_zoom,box_select,reset,box_zoom", plot_width=600, plot_height=600)
+    plot = figure(title="Meetup Network Analysis", x_range=(-2.2, 2.2), y_range=(-1.1, 1.1),
+                  tools="pan,wheel_zoom,box_select,reset,box_zoom", plot_width=1400, plot_height=700)
 
     # Assign layout for nodes, render graph, and add hover tool
     graph.layout_provider = StaticLayoutProvider(graph_layout=positions)
@@ -577,8 +591,8 @@ def Grouped(doc):
 
         TOOLTIPS = [
             ("Name", "@index")]
-        plot = figure(title="", x_range=(-1.1, 1.1), y_range=(-1.1, 1.1),
-                      tooltips=TOOLTIPS)
+        plot = figure(title="", x_range=(-2.2, 2.2), y_range=(-1.1, 1.1),
+                      tooltips=TOOLTIPS, plot_width=1400, plot_height=700)
         graph = from_networkx(g, nx.spring_layout, scale=2, center=(0, 0))
 
         graph.edge_renderer.glyph = MultiLine(line_color="#CCCCCC", line_width=2)

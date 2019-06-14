@@ -1,12 +1,24 @@
 Hello!
 
 We are group 23, and this is our prototype for a data visualization website.
-This website can be ran by going to the folder directory in your command prompt, inside of the project's directory,
-(sampledata_vis) you can open the virtual environment by entering:
-Scripts\activate.
-Then you can run the project by:
-python manage.py runserver
 
+Please use Chrome to run our code as it does not do well with other browsers.
+
+To start our webstise you need to open Command Prompt and navigate to the project's directory, where the requirements.txt file is located.
+There run the command:
+
+pip install -r requirements.txt (you do need to have pip installed for this to work)
+
+This installs all the requirements you need to run our website.
+
+This website can be ran by going to the folder directory where manage.py is located, (sampledata_vis) you can open the virtual environment 
+by entering:
+
+Scripts\activate
+
+Then you can run the project by:
+
+python manage.py runserver
 
 We have three visualizations implemented on the website:
 1. Force directed diagram
@@ -20,4 +32,5 @@ visualizations might take some time, we are still working on runtime improvement
 The Force directed diagram works well, takes some time to load and has zooming in options integrated in the bar on the side.
 The Radial node link diagram, there you can choose using the table above the graph which node you want to focus one and then you can click
 on the other nodes in the graph to see that path/paths between the target node and the selected node.
-The Adjacency matrix has 5 different reorderings. These are Adjacency Matrix, Alphabetical Adjacency, Distance Matrix, Increasing Distance, Decreasing Distance.
+The Adjacency matrix has 5 different reorderings. These are Adjacency Matrix, Alphabetical Adjacency, Distance Matrix, Increasing Distance, 
+Decreasing Distance.
