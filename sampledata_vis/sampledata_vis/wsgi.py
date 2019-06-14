@@ -17,7 +17,8 @@ def serverWorker():
     server = Server(
         {'/Weighted' : application.Visualisations.Weighted,
          '/Grouped' : application.Visualisations.Grouped,
-         '/Adjacent' : application.Visualisations.Adjacent},  # list of Bokeh applications
+         '/Adjacent' : application.Visualisations.Adjacent,
+         '/Hierarchical' : application.Visualisations.Hierarchical},  # list of Bokeh applications
         io_loop=IOLoop(),        # Tornado IOLoop
         allow_websocket_origin=["127.0.0.1:8000", "localhost:5006"]
     )

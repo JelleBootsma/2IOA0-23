@@ -1,4 +1,5 @@
 import csv
+import math
 import time
 import scipy
 import pandas as pd
@@ -13,6 +14,8 @@ from django.views.generic import TemplateView
 from django.core.files.storage import FileSystemStorage
 from .forms import DataForm
 from .models import Data
+from bokeh import events
+from numpy import pi
 from bokeh.models.widgets import Tabs, Panel, Select
 from bokeh.models import (
     ColumnDataSource,
@@ -29,7 +32,7 @@ from bokeh.transform import linear_cmap
 from bokeh.transform import transform
 from bokeh.palettes import Spectral4
 from bokeh.layouts import column
-from scipy.cluster.hierarchy import dendrogram, linkage
+from scipy.cluster.hierarchy import dendrogram, linkage, ClusterNode, to_tree
 from scipy.spatial.distance import squareform
 from numpy import arange
 from bokehheat import heat
@@ -43,7 +46,7 @@ from bokeh.io import curdoc, show, output_notebook
 from bokeh.plotting import figure
 import networkx as nx
 from bokeh.io import show, output_file
-from bokeh.plotting import figure
+from bokeh.plotting import figure, Column
 from bokeh.models.graphs import from_networkx, NodesAndLinkedEdges, EdgesAndLinkedNodes, NodesOnly
 
 hv.extension('bokeh')
@@ -610,7 +613,9 @@ def Grouped(doc):
 
 
 def Hierarchical(doc):
-    # df = pd.read_csv('application/dataSet/GephiMatrix_author_similarity.csv', sep=';')
+    global source, nodes
+
+    """"     # df = pd.read_csv('application/dataSet/GephiMatrix_author_similarity.csv', sep=';')
     #csv_reader = pd.read_csv('application/dataSet/authors.csv', sep=';')
 
     #############################################################
@@ -675,5 +680,140 @@ def Hierarchical(doc):
                     if distancematrix[i][j] > distancematrix[i][k] + distancematrix[k][j]:
                         distancematrix[i][j] = distancematrix[i][k] + distancematrix[k][j]
 
-        values = distancematrix
+        values = distancematrix """
+    #########################################################################################################
 
+    def getLevelInfo(tree):
+        nodes = [tree.get_left(), tree.get_right()]
+        total_desc = tree.get_count()
+        percents = [0]
+        names = []
+        for node in nodes:
+            percentage = float(node.get_count()) / float(total_desc)
+            percents.append(float(percentage + percents[-1]))
+            names.append(node.get_id())
+
+        return percents, names, nodes
+
+    def genDataSource(tree):
+        percents, names, nodes = getLevelInfo(tree)
+
+        # define starts/ends for wedges from percentages of a circle
+        starts = [p * 2 * pi for p in percents[:-1]]
+        ends = [p * 2 * pi for p in percents[1:]]
+        colours = getColours(len(starts))
+        branchLengths = [node.dist for node in nodes]
+        children = [node.get_count() for node in nodes]
+        source = ColumnDataSource(data=dict(
+            start=starts, end=ends, name=names, colour=colours, branchLength=branchLengths, children=children
+        ))
+        return source, nodes
+
+    def getColours(Length):
+        colours = ["red", "green", "blue", "orange", "yellow", "purple", "pink"]
+        returnColours = colours
+        while len(returnColours) <= Length:
+            returnColours += colours
+        if returnColours[-1] == "red":
+            returnColours[-1] = "orange"
+
+        return returnColours[0:Length]
+
+    def calcAngle(x, y):
+        innerProduct = x
+        lengthProduct = math.sqrt(x ** 2 + y ** 2)
+        cosAngle = innerProduct / lengthProduct
+        if y < 0 and x > 0:
+            return 2 * pi - math.acos(cosAngle)
+        else:
+            return math.acos(cosAngle)
+
+    def update(event):
+        print('Click registered')
+        angle = calcAngle(event.x, event.y)
+        print(angle)
+        global source, nodes
+        for i in range(len(source.data['end'])):
+            if source.data['end'][i] > angle and source.data['start'][i] < angle:
+                clickedNode = i
+                print(i)
+
+        if nodes[clickedNode].get_count() > 2:
+            new_source, nodes = genDataSource(nodes[clickedNode])
+            source.data = new_source.data
+
+
+    def returnVisualisation():
+        global source, nodes
+        new_source, nodes = genDataSource(tree)
+        source.data = new_source.data
+
+    df = pd.read_csv('media/data/GephiMatrix_author_similarity.csv', sep=';', index_col=0)
+    print('Loaded data succesfully')
+
+    names = df.index.values
+
+    counts = df.values
+    # print(counts)
+
+    print(len(counts))
+
+    # If data too large
+    #########################################################
+    if len(names) > 50:
+        n = 50
+        while len(names) != 50:
+            names = np.delete(names, (n))
+            counts = np.delete(counts, (n), axis=0)
+            counts = np.delete(counts, (n), axis=1)
+
+    # Make a distance matrix
+    #######################################################
+    N = len(counts)
+    distancematrix = np.zeros((N, N))
+    count = 0
+    for node_1 in counts:
+        distancematrix[count] = node_1
+        count = count + 1
+
+    for m in range(N):
+        for n in range(N):
+            if distancematrix[m][n] == 0:
+                distancematrix[m][n] = float("inf")
+    for l in range(N):
+        distancematrix[l][l] = 0
+
+    for k in range(N):
+        for i in range(N):
+            for j in range(N):
+                if distancematrix[i][j] > distancematrix[i][k] + distancematrix[k][j]:
+                    distancematrix[i][j] = distancematrix[i][k] + distancematrix[k][j]
+
+    X = distancematrix
+
+    Z = linkage(X, 'ward')
+
+    tree = to_tree(Z)
+
+    ## Create the first data source for the root view
+    source, nodes = genDataSource(tree)
+
+    ## Create buttons and tools to interact with the visualisation
+    returnButton = Button(label="Return")
+    hover = HoverTool()
+    hover.tooltips = [("Name", "@name"), ("Lenght to parent", "@branchLength"), ("Children", "@children")]
+    hover.mode = 'mouse'
+    tools = [hover, 'save']
+
+    ## Create the canvas
+    p = figure(x_range=(-1, 1), y_range=(-1, 1), tools=tools)
+
+    ## Draw the wedges on the canvas according to the tree info
+    p.wedge(x=0, y=0, radius=1, start_angle='start', end_angle='end', color='colour', alpha=0.6, source=source)
+
+    ## Map actions to events for the interaction
+    p.on_event(events.Tap, update)
+    returnButton.on_click(returnVisualisation)
+
+    ## Display the visualisation
+    doc.add_root(Column(returnButton, p))
