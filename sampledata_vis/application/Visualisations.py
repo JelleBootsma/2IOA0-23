@@ -73,23 +73,19 @@ def Adjacent(doc):
     counts = np.zeros((N, N))
     for i in range(0, len(nodes)):
         for j in range(0, len(nodes)):
+            print(nodes[j][i])
             counts[i, j] = nodes[j][i]
             counts[j, i] = nodes[j][i]
 
     # If data too large
     #########################################################
-    # if len(names) > 50:
-    #     n = 50
-    #     while len(names) != 50:
-    #         names = np.delete(names, (n))
-    #         counts = np.delete(counts, (n), axis=0)
-    #         counts = np.delete(counts, (n), axis=1)
     N = len(names)
     if len(names) > 110:
         counts = np.delete(counts, np.s_[110:N], axis=0)
         counts = np.delete(counts,  np.s_[110:N], axis=1)
     if len(names) > 110:
         names = np.delete(names, np.s_[110:N])
+
     # Deleting duplicates
     #########################################################
     arrayi = []
