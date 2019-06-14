@@ -20,13 +20,11 @@ from bokeh.models import (
     LinearColorMapper,
     BasicTicker,
     PrintfTickFormatter,
-    ColorBar
-)
+    ColorBar)
 import matplotlib.cm as cm
 import matplotlib as mpl
 from matplotlib import colors
 import holoviews as hv  # There is a reason we have to do this here but its not important. Holoviews is the next library
-hv.extension('bokeh')
 from bokeh.transform import linear_cmap
 from bokeh.transform import transform
 from bokeh.palettes import Spectral4
@@ -48,6 +46,7 @@ from bokeh.io import show, output_file
 from bokeh.plotting import figure
 from bokeh.models.graphs import from_networkx, NodesAndLinkedEdges, EdgesAndLinkedNodes, NodesOnly
 
+hv.extension('bokeh')
 
 def Adjacent(doc):
     args = doc.session_context.request.arguments
