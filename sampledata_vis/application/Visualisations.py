@@ -753,9 +753,6 @@ def Hierarchical(doc):
 
     names = df.index.values
     counts = df.values
-    # print(counts)
-
-    print(len(counts))
 
     # If data too large
     #########################################################
@@ -766,6 +763,7 @@ def Hierarchical(doc):
             counts = np.delete(counts, (n), axis=0)
             counts = np.delete(counts, (n), axis=1)
 
+    counts = np.delete(counts, len(counts), axis = 1)
     # Make a distance matrix
     #######################################################
     N = len(counts)
