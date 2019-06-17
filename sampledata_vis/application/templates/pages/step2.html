@@ -55,6 +55,7 @@
                         <a class="dropdown-item" href={% url 'vis1' %}>Force directed diagram</a>
                         <a class="dropdown-item" href={% url 'vis2' %}>Radial node-link diagram</a>
                         <a class="dropdown-item" href={% url 'vis3' %}>Adjancency Matrix</a>
+                        <a class="dropdown-item" href={% url 'vis4' %}>Hierarchical tree pie</a>
                     </div>
                 </li>
 
@@ -108,6 +109,16 @@
                                                 connections by using both adjacency and distance algorithms.</p>
                                             <a href ={%  url 'vis3' %} class="btn-get-started">Adjacency Matrix</a>
                     {#                        </div>#}
+                                        </div>
+                                        <div class = "col-sm">
+                                            <div class = "row2">
+{#                                                <a href="visualization4.html">Hierarchical tree pie visualisation</a>#}
+                                            </div>
+                                            <img src="https://i.stack.imgur.com/9HHat.png" height="200" width ="250" alt="Image des">
+                                            <p>The hierarchical tree pie visualisation gives a novel way of visualising the hierarchical data.
+                                            It first generates hierarchical data from the given dataset by using clustering. Then this binary tree data is
+                                            visualised in a pie, where the pieces are scaled using the number of leaf nodes in their respective subtree</p>
+                                            <a href ={%  url 'vis4' %} class="btn-get-started">Hierarchical tree pie visualisation</a>
                                         </div>
                                     </div>
                                 </div>

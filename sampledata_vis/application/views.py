@@ -99,5 +99,12 @@ def adjacencymatrix(request):
     script = server_document('http://localhost:5006/Adjacent', arguments={'file': fileLocation})
     return render_to_response('pages/visualization3.html', dict(script=script))
 
+def hierarchical(request):
+    fileLocation = request.COOKIES['Data']
+
+    # store comments
+    script = server_document('http://localhost:5006/Adjacent', arguments={'file': fileLocation})
+    return render_to_response('pages/visualization3.html', dict(script=script))
+
 
 

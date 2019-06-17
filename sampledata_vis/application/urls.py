@@ -13,6 +13,7 @@ urlpatterns = [
                 url(r'^visualization1.html/$', views.coauthorship, name="vis1"),
                 url(r'^visualization2.html/$', views.weightedgraph, name='vis2'),
                 url(r'^visualization3.html/$', views.adjacencymatrix, name='vis3'),
+                url(r'^visualization4.html/$', views.hierarchical, name='vis4'),
                 url(r'^data.html/$', views.data, name="data"),
                 url(r'^aboutus.html/$', views.aboutus, name="aboutus"),
                 url(r'^step1/$', views.step1, name="step1"),
