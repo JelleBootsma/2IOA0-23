@@ -381,138 +381,127 @@ def Weighted(doc):
     dfSort = dfread.sort_index()
     nArr = dfread.index.values
     dfArr = dfread.values
-    dfnsort = pd.DataFrame(nArr, columns=['names'])
-    df = dfnsort.sort_values(by=['names'])
     nArrSort = dfSort.index.values
     nArrSortND = np.asarray(list(dict.fromkeys(nArrSort)))
-    dfArrSort = dfSort.values
 
-    # Import / instantiate networkx graph
     G = nx.Graph()
-
-    for x in range(0, len(df) - 1):
+    for i in range(len(nArrSortND)):
+        G.add_node(nArrSortND[i])
+    for x in range(0, len(dfArr) - 1):
         xVal = x + 1
         for y in range(0, x):
             if dfArr[xVal][y] > 0.0:
                 G.add_edge(nArr[xVal], nArr[y], weight=dfArr[xVal][y])
 
-    # Node Characteristics
-    name = nArrSortND[0]
-    # node_name = list(G.nodes())
-    # positions = nx.circular_layout(G)
-
-    # size = [3 for k in range(len(G.nodes()))]
-    # nx.set_node_attributes(G, size, 'size')
-    # visual_attributes=ColumnDataSource(
-    #    pd.DataFrame.from_dict({k:v for k,v in G.nodes(data=True)},orient='index'))
-
-    # Edge characteristics
     start_edge = [start_edge for (start_edge, end_edge) in G.edges()]
     end_edge = [end_edge for (start_edge, end_edge) in G.edges()]
     weight = list(nx.get_edge_attributes(G, 'weight').values())
 
     edge_df = pd.DataFrame({'source': start_edge, 'target': end_edge, 'weight': weight})
 
-    # Create full graph from edgelist
-    G = nx.from_pandas_edgelist(edge_df, edge_attr=True)
+    nodesEdges = list(dict.fromkeys(np.append(edge_df['source'].values, edge_df['target'].values)))
+    nodesEdges.sort()
+    nodesEdgesSort = np.asarray(nodesEdges)
 
-    # Convert full graph to Bokeh network for node coordinates and instantiate Bokeh graph object
+    noEdgesArr = []
+    noEdgesArrNum = []
+    for i in range(len(nArrSortND)):
+        if nArrSortND[i] not in nodesEdgesSort:
+            noEdgesArr.append(nArrSortND[i])
+            noEdgesArrNum.append(i)
+    G.remove_nodes_from(noEdgesArr)
+
     G_source = from_networkx(G, nx.circular_layout, scale=2, center=(0, 0))
     graph = GraphRenderer()
 
-    # Update loop where the magic happens
+    # Update loop
     def update():
-        node_name_ex = np.delete(nArrSortND, np.where(nArrSortND == select.value))
-        name = select.value
-        namenumber = 0
-        for x in range(len(df)):
-            if nArr[x] == select.value:
-                namenumber = x
         selected_array = []
         for i in range(len(edge_df)):
             if edge_df['source'][i] == select.value or edge_df['target'][i] == select.value:
                 selected_array.append(edge_df.loc[[i]])
         selected_df = pd.concat(selected_array)
-        sub_G = nx.from_pandas_edgelist(selected_df, edge_attr=True)
         subArr = selected_df.index.values
         subArrVal = selected_df.values
-        tempArr = node_name_ex
+        sub_G = nx.Graph()
+        sub_G.clear()
+        for i in range(len(nodesEdgesSort)):
+            sub_G.add_node(nodesEdgesSort[i])
+        for p in range(len(selected_df)):
+            sub_G.add_edge(selected_df['source'][subArr[p]], selected_df['target'][subArr[p]],
+                           weight=selected_df['weight'][subArr[p]])
 
         size = []
         alpha = []
+        weightEdge = []
         alpha_hover = []
         width = []
         edgeName = []
         line_color = []
         i = 0
+        k = 0
+
+        multiplier = 5 / max(selected_df['weight'])
 
         for p in range(len(nArrSortND)):
-            if nArrSortND[p] == select.value:
-                size.append(25)
-            else:
-                if nArrSortND[p] in subArrVal:
-                    if selected_df['source'][subArr[i]] == select.value:
-                        # sub_G.node[selected_df['target'][subArr[i]]]['size'] = 25 * sub_G[select.value][selected_df['target'][subArr[i]]]['weight']
-                        tempArr = np.delete(tempArr, np.where(tempArr == selected_df['target'][subArr[i]]))
-                        alpha.append(sub_G[selected_df['target'][subArr[i]]][select.value]['weight'])
-                        alpha_hover.append(1)
-                        width.append(int(5 * sub_G[selected_df['target'][subArr[i]]][select.value]['weight']))
-                        line_color.append('#FF0000')
-                        edgeName.append([select.value, nArrSortND[p]])
-                        size.append(25 * sub_G[select.value][selected_df['target'][subArr[i]]]['weight'])
-                    else:
-                        # sub_G.node[selected_df['source'][subArr[i]]]['size'] = 25 * sub_G[select.value][selected_df['source'][subArr[i]]]['weight']
-                        tempArr = np.delete(tempArr, np.where(tempArr == selected_df['source'][subArr[i]]))
-                        alpha.append(sub_G[selected_df['source'][subArr[i]]][select.value]['weight'])
-                        alpha_hover.append(1)
-                        width.append(int(5 * sub_G[selected_df['source'][subArr[i]]][select.value]['weight']))
-                        line_color.append('#FF0000')
-                        edgeName.append([select.value, nArrSortND[p]])
-                        size.append(25 * sub_G[select.value][selected_df['source'][subArr[i]]]['weight'])
-                    i = i + 1
+            if p not in noEdgesArrNum:
+                if nArrSortND[p] == select.value:
+                    size.append(25)
                 else:
-                    sub_G.add_node(nArrSortND[p])
-                    # sub_G.node[tempArr[i]]['size'] = 0
-                    alpha.append(0)
-                    alpha_hover.append(1)
-                    width.append(0)
-                    line_color.append('#FF0000')
-                    edgeName.append(["source", "target"])
-                    size.append(0)
+                    if nodesEdgesSort[k] in subArrVal:
+                        if selected_df['source'][subArr[i]] == select.value:
+                            alpha.append((sub_G[select.value][selected_df['target'][subArr[i]]]['weight']) / (
+                                        2 / max(selected_df['weight'])))
+                            weightEdge.append(sub_G[select.value][selected_df['target'][subArr[i]]]['weight'])
+                            alpha_hover.append(1)
+                            width.append(multiplier * sub_G[select.value][selected_df['target'][subArr[i]]]['weight'])
+                            line_color.append('#FF0000')
+                            edgeName.append([select.value, nodesEdgesSort[k]])
+                            size.append(
+                                5 * multiplier * sub_G[select.value][selected_df['target'][subArr[i]]]['weight'])
+                        else:
+                            alpha.append((sub_G[select.value][selected_df['source'][subArr[i]]]['weight']) / (
+                                        2 / max(selected_df['weight'])))
+                            weightEdge.append(sub_G[select.value][selected_df['source'][subArr[i]]]['weight'])
+                            alpha_hover.append(1)
+                            width.append(multiplier * sub_G[select.value][selected_df['source'][subArr[i]]]['weight'])
+                            line_color.append('#FF0000')
+                            edgeName.append([select.value, nodesEdgesSort[k]])
+                            size.append(
+                                5 * multiplier * sub_G[select.value][selected_df['source'][subArr[i]]]['weight'])
+                        i += 1
+                    else:
+                        alpha.append(None)
+                        weightEdge.append(None)
+                        alpha_hover.append(None)
+                        width.append(None)
+                        line_color.append(None)
+                        edgeName.append([select.value, nodesEdgesSort[k]])
+                        size.append(3)
+                k += 1
 
         sub_graph = from_networkx(sub_G, nx.circular_layout, scale=2, center=(0, 0))
 
-        tempnArrSortND1 = nArrSortND[(np.where(nArrSortND == select.value)[0][0]):]
-        tempnArrSortND2 = nArrSortND[:(np.where(nArrSortND == select.value)[0][0])]
+        tempnArrSortND1 = nodesEdgesSort[(np.where(nodesEdgesSort == select.value)[0][0]):]
+        tempnArrSortND2 = nodesEdgesSort[:(np.where(nodesEdgesSort == select.value)[0][0])]
 
         newnArrSortND = np.append(tempnArrSortND1, tempnArrSortND2)
 
         nodeSource = ColumnDataSource(data=dict(
             size=size,
-            index=nArrSortND,
+            index=nodesEdgesSort,
         ))
 
         edgeSource = ColumnDataSource(data=dict(
             line_alpha=alpha,
+            line_weight=weightEdge,
             line_alpha_hover=alpha_hover,
             line_width=width,
             line_color=line_color,
             index=edgeName,
-            start=[select.value] * (len(nArrSortND) - 1),
+            start=[select.value] * (len(nodesEdgesSort) - 1),
             end=newnArrSortND[1:],
         ))
-        # print('node data:')
-        # print('size; ', len(size))
-        # print('node names; ', len(nArrSortND))
-        #
-        # print('edge data:')
-        # print('alpha; ', len(alpha))
-        # print('alpha hover; ', len(alpha_hover))
-        # print('width; ', len(width))
-        # print('color; ', len(line_color))
-        # print('edge names; ', len(edgeName))
-        # print('start; ', len([nArrSortND[0]] * (len(nArrSortND) - 1)))
-        # print('end; ', len(nArrSortND[1:]))
 
         sub_graph.edge_renderer.data_source = edgeSource
         sub_graph.node_renderer.data_source = nodeSource
@@ -523,19 +512,16 @@ def Weighted(doc):
 
     def selected_points(attr, old, new):
         selected_idx = graph.node_renderer.selected.indices  # does not work
-        #print(selected_idx)
+        print(selected_idx)
 
-    # Slider which changes values to update the graph
-    select = Select(title='names', options=nArrSortND.tolist(), value=nArrSortND[0])
+    select = Select(title='names', options=nodesEdgesSort.tolist(), value=nodesEdgesSort[0])
     select.on_change('value', lambda attr, old, new: update())
 
     positions = nx.circular_layout(G)
 
-    # Plot object which is updated
-    plot = figure(title="Meetup Network Analysis", x_range=(-2.2, 2.2), y_range=(-1.1, 1.1),
-                  tools="pan,wheel_zoom,box_select,reset,box_zoom", plot_width=1400, plot_height=700)
+    plot = figure(title="Meetup Network Analysis", x_range=(-1.1, 1.1), y_range=(-1.1, 1.1),
+                  tools="pan,wheel_zoom,box_select,reset,box_zoom", plot_width=600, plot_height=600)
 
-    # Assign layout for nodes, render graph, and add hover tool
     graph.layout_provider = StaticLayoutProvider(graph_layout=positions)
 
     graph.node_renderer.glyph = Circle(size='size', fill_color="#FCFCFC")
@@ -548,18 +534,15 @@ def Weighted(doc):
     graph.edge_renderer.hover_glyph = MultiLine(line_color='line_color', line_alpha='line_alpha_hover',
                                                 line_width='line_width')
 
-    graph.inspection_policy = NodesAndLinkedEdges and EdgesAndLinkedNodes()
+    graph.inspection_policy = NodesAndLinkedEdges() and EdgesAndLinkedNodes()
     graph.selection_policy = NodesAndLinkedEdges()
     plot.renderers.append(graph)
-    plot.tools.append(HoverTool(tooltips=[("index", "@index"), ("weight", "@line_alpha")]))
+    plot.tools.append(HoverTool(tooltips=[("index", "@index"), ("weight", "@line_weight")]))
 
-    # Set layout
     layout = column(select, plot)
 
-    # does not work
     graph.node_renderer.data_source.selected.on_change("indices", selected_points)
 
-    # Create Bokeh server object
     doc.add_root(layout)
     update()
 
