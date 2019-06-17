@@ -56,13 +56,11 @@ def Adjacent(doc):
     file = args.get('file')[0]
     file = str(file.decode('UTF-8'))
 
-    # df = pd.read_csv('application/dataSet/GephiMatrix_author_similarity.csv', sep=';')
     try:
         df = pd.read_csv("media/" + file, sep=';')
         print('Loaded data succesfully')
     except:
         raise Exception("File does not exist")
-    # df = pd.read_csv('application/dataSet/authors_2.csv', sep=';')
     nArr = df.index.values
     dfArr = df.values
 
@@ -73,7 +71,6 @@ def Adjacent(doc):
     counts = np.zeros((N, N))
     for i in range(0, len(nodes)):
         for j in range(0, len(nodes)):
-            print(nodes[j][i])
             counts[i, j] = nodes[j][i]
             counts[j, i] = nodes[j][i]
 
@@ -744,11 +741,10 @@ def Hierarchical(doc):
         new_source, nodes = genDataSource(tree)
         source.data = new_source.data
 
-    df = pd.read_csv('media/data/GephiMatrix_author_similarity.csv', sep=';', index_col=0)
+    df = pd.read_csv('media/data/GephiMatrix_author_similarity.csv', sep=';')
     print('Loaded data succesfully')
 
     names = df.index.values
-
     counts = df.values
     # print(counts)
 
