@@ -741,8 +741,15 @@ def Hierarchical(doc):
         new_source, nodes = genDataSource(tree)
         source.data = new_source.data
 
-    df = pd.read_csv('media/data/GephiMatrix_author_similarity.csv', sep=';')
-    print('Loaded data succesfully')
+    args = doc.session_context.request.arguments
+    file = args.get('file')[0]
+    file = str(file.decode('UTF-8'))
+
+    try:
+        df = pd.read_csv("media/" + file, sep=';')
+        print('Loaded data succesfully')
+    except:
+        raise Exception("File does not exist")
 
     names = df.index.values
     counts = df.values
